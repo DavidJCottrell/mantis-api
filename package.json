@@ -1,5 +1,5 @@
 {
-	"name": "mantis_api",
+	"name": "mantis-api",
 	"version": "0.0.0",
 	"main": "server.js",
 	"scripts": {
