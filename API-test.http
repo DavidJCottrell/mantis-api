@@ -1,0 +1,66 @@
+POST http://localhost:5000/projects/add
+content-type: application/json
+
+{
+    "title": "Half Life 3",
+    "users": [
+        {"userId": "606b5ae022f56faeb6ab693b", "role": "Team Leader"}
+    ],
+    "tasks":[
+        {
+            "taskKey": "T1",
+            "title": "Level 1 Glitch",
+            "description": "Graphical glitch at start of level 1",
+            "type": "Bug",
+            "assignee": "606b5ae022f56faeb6ab693b",
+            "reporter": "6074b91a80b41682a78f680d",
+            "status": "In Progress",
+            "resolution": "Unresolved",
+            "dateCreated": "21-02-2021",
+            "dateUpdated": "01-04-2021",
+            "comments": [
+                {
+                    "content": "This is a comment on task T1 in the Half Life 3 project",
+                    "taggedUsers":["6074b91a80b41682a78f680d"]
+                }
+            ],
+            "subtasks": []
+        }
+    ]
+}
+
+####
+
+POST http://localhost:5000/projects/add
+content-type: application/json
+
+{
+    "title": "Flappy Bird 2",
+    "users": [
+        {"userId": "606b5ae022f56faeb6ab693b", "role": "Team Leader"}
+    ],
+    "tasks":[]
+}
+
+####
+
+POST http://localhost:5000/projects/add
+content-type: application/json
+
+{
+    "title": "Half Life 3",
+    "users": [
+        {"userId": "606b5ae022f56faeb6ab693b", "role": "Team Leader"}
+    ]
+}
+
+
+###
+GET http://localhost:5000/projects/
+
+###
+GET http://localhost:5000/projects/606b955a35d1b7d715262273
+
+# Add task to project
+
+# Add user to project
