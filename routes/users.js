@@ -2,6 +2,16 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
+// Validation
+
+const Joi = require("@hapi/joi");
+
+const validationSchema = Joi.object({
+	name: Joi.string().min(6).required(),
+	email: Joi.string().min(6).required().email(),
+	password: Joi.string().min(6).required(),
+});
+
 router.get("/", async (req, res) => {
 	try {
 		const users = await User.find();
@@ -22,6 +32,10 @@ router.get("/:userId", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
+	// Validate
+	const { error } = validationSchema.validate(req.body);
+	if (error) return res.status(400).send(error.details[0].message);
+
 	try {
 		const user = new User({
 			name: req.body.name,
