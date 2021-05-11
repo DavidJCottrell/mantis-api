@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
+const verify = require("./verifyToken");
 
 //returns all the projects in the database
-router.get("/", async (req, res) => {
+router.get("/", verify, async (req, res) => {
 	try {
 		const projects = await Project.find();
 		res.json(projects);

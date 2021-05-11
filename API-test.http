@@ -57,13 +57,15 @@ content-type: application/json
 
 ###
 GET http://localhost:5000/projects/
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMGIyMGI4NzUxMjg5MzA0ZGZmY2QiLCJpYXQiOjE2MjA3NzQ3NTUsImV4cCI6MTYyMDc3NDg3NX0.OxR5ohkRdDby3NPH2GQhYQxeNG4LObL97i_DrRPLmiM
 
 ###
 GET http://localhost:5000/projects/606b955a35d1b7d715262273
 
 
 ###
-GET http://localhost:5000/users/606b5ae022f56faeb6ab693b
+GET http://localhost:5000/users/
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMGIyMGI4NzUxMjg5MzA0ZGZmY2QiLCJpYXQiOjE2MjA3NzUyNDh9._YCsjR9QGxHSlPRDyEeNPhChpW2uzqPL-ubk4Mg5Oc8
 
 ###
 POST http://localhost:5000/users/register
@@ -73,6 +75,44 @@ content-type: application/json
     "name": "David Cottrell",
     "email": "davidjamescottrell@gmail.com",
     "password": "password"
+}
+
+###
+POST http://localhost:5000/users/register
+content-type: application/json
+
+{
+    "name": "John Doe",
+    "email": "johndoe@gmail.com",
+    "password": "password123"
+}
+
+###
+POST http://localhost:5000/users/register
+content-type: application/json
+
+{
+    "name": "Edward Smith",
+    "email": "edsmith@gmail.com",
+    "password": "password123"
+}
+
+###
+POST http://localhost:5000/users/login
+content-type: application/json
+
+{
+    "email": "davidjamescottrell@gmail.com",
+    "password": "password"
+}
+
+###
+POST http://localhost:5000/users/login
+content-type: application/json
+
+{
+    "email": "edsmith@gmail.com",
+    "password": "password123"
 }
 
 # Add task to project
