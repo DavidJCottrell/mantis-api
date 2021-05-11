@@ -17,7 +17,7 @@ const { registerValidation, loginValidation } = require("../validation.js");
 // 	}
 // });
 
-//returns a specific user
+// Returns a specific user
 router.get("/", verify, async (req, res) => {
 	try {
 		const user = await User.findById(req.user._id);

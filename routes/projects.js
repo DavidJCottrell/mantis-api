@@ -14,7 +14,7 @@ router.get("/", verify, async (req, res) => {
 });
 
 //Add project
-router.post("/add", async (req, res) => {
+router.post("/add", verify, async (req, res) => {
 	try {
 		const project = new Project({
 			title: req.body.title,
@@ -30,7 +30,7 @@ router.post("/add", async (req, res) => {
 });
 
 //returns a specific project
-router.get("/:projectId", async (req, res) => {
+router.get("/:projectId", verify, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
 		res.json({ project });
@@ -39,7 +39,7 @@ router.get("/:projectId", async (req, res) => {
 	}
 });
 
-router.delete("/:projectId", async (req, res) => {
+router.delete("/:projectId", verify, async (req, res) => {
 	try {
 		const removedProject = await Project.remove({
 			_id: req.params.projectId,
@@ -51,7 +51,7 @@ router.delete("/:projectId", async (req, res) => {
 });
 
 //Update project
-router.patch("/:projectId", async (req, res) => {
+router.patch("/:projectId", verify, async (req, res) => {
 	try {
 		const updatedProject = await Project.updateOne(
 			{
