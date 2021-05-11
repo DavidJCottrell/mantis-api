@@ -72,7 +72,7 @@ content-type: application/json
 {
     "name": "David Cottrell",
     "email": "davidjamescottrell@gmail.com",
-    "password": "thisismypassword123456"
+    "password": "password"
 }
 
 # Add task to project
