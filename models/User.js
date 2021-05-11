@@ -4,6 +4,14 @@ const UserSchema = mongoose.Schema({
 	name: {
 		type: String,
 		required: true,
+		min: 4,
+		max: 255,
+	},
+	email: {
+		type: String,
+		required: true,
+		min: 6,
+		max: 255,
 	},
 	username: {
 		type: String,
@@ -12,10 +20,16 @@ const UserSchema = mongoose.Schema({
 	password: {
 		type: String,
 		required: true,
+		min: 6,
+		max: 1024,
 	},
 	projects: {
 		type: Array,
 		default: [],
+	},
+	date: {
+		type: Date,
+		default: Date.now,
 	},
 });
 

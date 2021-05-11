@@ -61,6 +61,20 @@ GET http://localhost:5000/projects/
 ###
 GET http://localhost:5000/projects/606b955a35d1b7d715262273
 
+
+###
+GET http://localhost:5000/users/606b5ae022f56faeb6ab693b
+
+###
+POST http://localhost:5000/users/register
+content-type: application/json
+
+{
+    "name": "David Cottrell",
+    "email": "davidjamescottrell@gmail.com",
+    "password": "thisismypassword123456"
+}
+
 # Add task to project
 
 # Add user to project
