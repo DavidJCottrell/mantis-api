@@ -1,0 +1,63 @@
+# Get all project related to the user whos token is passed
+GET http://localhost:5000/user/projects
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
+
+###
+# Add project to user with provided token
+PATCH http://localhost:5000/user/addproject/609bd8ca85a4b73cd947cf59
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
+
+
+
+
+
+
+
+
+###
+# David Cottrell register
+POST http://localhost:5000/user/register
+content-type: application/json
+
+{
+    "firstName": "David",
+    "lastName": "Cottrell",
+    "email": "davidjamescottrell@gmail.com",
+    "password": "password",
+    "projects": [
+        {"_id": "6074d4691477622b950de63a"}
+    ]
+}
+
+###
+# Edward Smith register
+POST http://localhost:5000/user/register
+content-type: application/json
+
+{
+    "firstName": "Edward",
+    "lastName": "Smith",
+    "email": "edsmith@gmail.com",
+    "password": "password123"
+}
+
+###
+# David Cottrell login
+POST http://localhost:5000/user/login
+content-type: application/json
+
+{
+    "email": "davidjamescottrell@gmail.com",
+    "password": "password"
+}
+
+
+###
+# Edward Smith login
+POST http://localhost:5000/user/login
+content-type: application/json
+
+{
+    "email": "edsmith@gmail.com",
+    "password": "password123"
+}

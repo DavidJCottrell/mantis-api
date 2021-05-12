@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
 const verify = require("./verifyToken");
+const { createProjectValidation } = require("../validation.js");
 
 //returns all the projects in the database
 router.get("/", verify, async (req, res) => {
@@ -14,7 +15,11 @@ router.get("/", verify, async (req, res) => {
 });
 
 //Add project
-router.post("/add", verify, async (req, res) => {
+router.post("/add", async (req, res) => {
+	// Validate
+	const { error } = createProjectValidation(req.body);
+	if (error) return res.status(400).send(error.details[0].message);
+
 	try {
 		const project = new Project({
 			title: req.body.title,
@@ -38,7 +43,6 @@ router.get("/:projectId", verify, async (req, res) => {
 
 		let userExists = false;
 		for (user of project.users) {
-			console.log(userId + " --- " + user.userId);
 			if (userId == user.userId) {
 				userExists = true;
 				break;
@@ -46,9 +50,12 @@ router.get("/:projectId", verify, async (req, res) => {
 		}
 
 		if (userExists) res.json({ project });
-		else res.json({ message: "user does not exist in project" });
+		else
+			return res.json({
+				message: "User is not a memeber of this project.",
+			});
 	} catch (error) {
-		res.json({ message: error });
+		res.json({ message: "No project with that ID could be found." });
 	}
 });
 

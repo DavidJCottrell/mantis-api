@@ -7,16 +7,38 @@ const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
 // Returns all the projects belonging to a specific user (based on their token)
-router.get("/allprojects", verify, async (req, res) => {
+router.get("/projects", verify, async (req, res) => {
 	try {
 		const { projects } = await User.findById(req.user._id);
-		res.json({
-			projects,
-		});
+		res.json(projects);
 	} catch (error) {
 		res.json({
 			message: error,
 		});
+	}
+});
+
+// Add a project for which that user is a member of
+router.patch("/addproject/:projectId", verify, async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id);
+
+		let exists = false;
+
+		// Check if user is already a member of that project
+		for (project of user.projects)
+			exists = project._id === req.params.projectId ? true : false;
+
+		if (exists)
+			return res
+				.status(400)
+				.json({ message: "User is already a member of this project" });
+
+		user.projects.push({ _id: req.params.projectId });
+		user.save();
+		res.json({ message: "Successfully added project to user" });
+	} catch (error) {
+		res.json({ message: error });
 	}
 });
 

@@ -19,5 +19,22 @@ const loginValidation = (data) => {
 	return schema.validate(data);
 };
 
+const createProjectValidation = (data) => {
+	const schema = Joi.object({
+		title: Joi.string().min(1).required(),
+		users: Joi.array()
+			.items({
+				userId: Joi.string().required(),
+				role: Joi.string().required(),
+			})
+			.min(1)
+			.required(),
+		tasks: Joi.array(),
+	});
+	return schema.validate(data);
+};
+
+module.exports.createProjectValidation = createProjectValidation;
+
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;

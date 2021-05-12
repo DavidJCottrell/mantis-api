@@ -25,4 +25,4 @@ mongoose
 app.listen(process.env.PORT);
 
 // Clear console after nodemon reload
-//console.clear();
+// console.clear();
