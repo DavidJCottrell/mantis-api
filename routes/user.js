@@ -6,13 +6,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
-// Returns all the projects belonging to a specific user
+// Returns all the projects belonging to a specific user (based on their token)
 router.get("/allprojects", verify, async (req, res) => {
-	console.log("doing this one");
 	try {
-		const { firstName, lastName, projects } = await User.findById(
-			req.user._id
-		);
+		const { projects } = await User.findById(req.user._id);
 		res.json({
 			projects,
 		});
