@@ -31,6 +31,13 @@ router.get("/", verify, async (req, res) => {
 	}
 });
 
+//Initials followed by 6 digits
+const generateUsername = (firstName, lastName) => {
+	let initials = firstName[0] + lastName[0];
+	let ran = Math.floor(Math.random() * 1000000);
+	return initials + ran.toString();
+};
+
 router.post("/register", async (req, res) => {
 	// Validate
 	const { error } = registerValidation(req.body);
@@ -49,12 +56,24 @@ router.post("/register", async (req, res) => {
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
+	// Generate Unique Username
+	let notUnique = true;
+	let username;
+	while (notUnique) {
+		username = generateUsername(req.body.firstName, req.body.lastName);
+		const usernameExists = await User.findOne({
+			username: username,
+		});
+		if (!usernameExists) notUnique = false;
+	}
+
 	// Create new user
 	const user = new User({
-		name: req.body.name,
+		firstName: req.body.firstName,
+		lastName: req.body.lastName,
 		email: req.body.email,
 		password: hashedPassword,
-		username: "321",
+		username: username,
 	});
 
 	try {
