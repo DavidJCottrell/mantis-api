@@ -27,9 +27,9 @@ const createProjectValidation = (data) => {
 				userId: Joi.string().required(),
 				role: Joi.string().required(),
 			})
-			.min(1)
+			.max(1)
 			.required(),
-		tasks: Joi.array(),
+		tasks: Joi.array().max(1),
 	});
 	return schema.validate(data);
 };

@@ -1,15 +1,11 @@
 # Get all project related to the user whos token is passed
 GET http://localhost:5000/user/projects
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ2YjJhNWEyNjUiLCJpYXQiOjE2MjA4MzI1MTF9.VzS3BfKHq023GmDqKV9ODQDypVdmYha9S-hUL813ms4
 
 ###
 # Add project to user with provided token
-PATCH http://localhost:5000/user/addproject/609bd8ca85a4b73cd947cf59
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
-
-
-
-
+PATCH http://localhost:5000/user/addproject/609bf1600c638b46b2a5a269
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
 
 
 
@@ -23,10 +19,7 @@ content-type: application/json
     "firstName": "David",
     "lastName": "Cottrell",
     "email": "davidjamescottrell@gmail.com",
-    "password": "password",
-    "projects": [
-        {"_id": "6074d4691477622b950de63a"}
-    ]
+    "password": "password123"
 }
 
 ###
@@ -48,7 +41,7 @@ content-type: application/json
 
 {
     "email": "davidjamescottrell@gmail.com",
-    "password": "password"
+    "password": "password123"
 }
 
 

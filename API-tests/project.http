@@ -1,62 +1,40 @@
-# Create Half Life 3 Project
+####
+# Create Half Life 3 project
 POST http://localhost:5000/project/add
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ2YjJhNWEyNjUiLCJpYXQiOjE2MjA4MzI1MTF9.VzS3BfKHq023GmDqKV9ODQDypVdmYha9S-hUL813ms4
 content-type: application/json
 
 {
     "title": "Half Life 3",
-    "users": [
-        {"userId": "609b246827267d2f9ee3dfb5", "role": "Team Leader"}
-    ],
-    "tasks":[
-        {
-            "taskKey": "T1",
-            "title": "Level 1 Glitch",
-            "description": "Graphical glitch at start of level 1",
-            "type": "Bug",
-            "assignee": "606b5ae022f56faeb6ab693b",
-            "reporter": "6074b91a80b41682a78f680d",
-            "status": "In Progress",
-            "resolution": "Unresolved",
-            "dateCreated": "21-02-2021",
-            "dateUpdated": "01-04-2021",
-            "comments": [
-                {
-                    "content": "This is a comment on task T1 in the Half Life 3 project",
-                    "taggedUsers":["6074b91a80b41682a78f680d"]
-                }
-            ],
-            "subtasks": []
-        }
-    ]
+    "users": [],
+    "tasks":[]
 }
 
 ####
 # Create Fallout 3 project
 POST http://localhost:5000/project/add
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
 content-type: application/json
 
 {
     "title": "Fallout 3",
-    "users": [
-        {"userId": "609b2972aa590d32d66ece58", "role": "Team Leader"}
-    ],
+    "users": [],
     "tasks":[]
 }
 
 ####
 # Create Club Penguin Project
 POST http://localhost:5000/project/add
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
 content-type: application/json
 
 {
     "title": "Club Penguin",
     "users": [
-        {"userId": "609bd61777add53b5b993467", "role": "Team Leader"}
+        {"userId": "609bd61sssseee33", "role": "Team Leader"}
     ],
     "tasks":[]
 }
-
-
 
 
 

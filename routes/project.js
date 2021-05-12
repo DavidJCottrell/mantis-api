@@ -15,7 +15,12 @@ router.get("/", verify, async (req, res) => {
 });
 
 //Add project
-router.post("/add", async (req, res) => {
+router.post("/add", verify, async (req, res) => {
+	const userId = req.user._id;
+
+	req.body.users = [{ userId: userId, role: "Team Leader" }];
+	req.body.tasks = []; // Ensure no tasks are added when a project is created
+
 	// Validate
 	const { error } = createProjectValidation(req.body);
 	if (error) return res.status(400).send(error.details[0].message);

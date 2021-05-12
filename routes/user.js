@@ -50,6 +50,8 @@ const generateUsername = (firstName, lastName) => {
 };
 
 router.post("/register", async (req, res) => {
+	// Ensure users does not belong to any projects when they sign up
+	req.body.projects = [];
 	// Validate
 	const { error } = registerValidation(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
