@@ -6,23 +6,15 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
-// router.get("/", async (req, res) => {
-// 	try {
-// 		const users = await User.find();
-// 		res.json(users);
-// 	} catch (error) {
-// 		res.json({
-// 			message: error,
-// 		});
-// 	}
-// });
-
-// Returns a specific user
-router.get("/", verify, async (req, res) => {
+// Returns all the projects belonging to a specific user
+router.get("/allprojects", verify, async (req, res) => {
+	console.log("doing this one");
 	try {
-		const user = await User.findById(req.user._id);
+		const { firstName, lastName, projects } = await User.findById(
+			req.user._id
+		);
 		res.json({
-			user,
+			projects,
 		});
 	} catch (error) {
 		res.json({
@@ -74,6 +66,7 @@ router.post("/register", async (req, res) => {
 		email: req.body.email,
 		password: hashedPassword,
 		username: username,
+		projects: req.body.projects,
 	});
 
 	try {

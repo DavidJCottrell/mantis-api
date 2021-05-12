@@ -4,13 +4,13 @@ const app = express();
 const mongoose = require("mongoose");
 
 //Import routes
-const projectsRoute = require("./routes/projects");
-const usersRoute = require("./routes/users");
+const projectRoute = require("./routes/project");
+const userRoute = require("./routes/user");
 
 app.use(express.json());
 
-app.use("/projects", projectsRoute);
-app.use("/users", usersRoute);
+app.use("/project", projectRoute);
+app.use("/user", userRoute);
 
 //Connect to DB
 mongoose

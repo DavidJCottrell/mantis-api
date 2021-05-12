@@ -1,4 +1,4 @@
-POST http://localhost:5000/projects/add
+POST http://localhost:5000/project/add
 content-type: application/json
 
 {
@@ -31,7 +31,7 @@ content-type: application/json
 
 ####
 
-POST http://localhost:5000/projects/add
+POST http://localhost:5000/project/add
 content-type: application/json
 
 {
@@ -44,7 +44,7 @@ content-type: application/json
 
 ####
 
-POST http://localhost:5000/projects/add
+POST http://localhost:5000/project/add
 content-type: application/json
 
 {
@@ -56,30 +56,33 @@ content-type: application/json
 
 
 ###
-GET http://localhost:5000/projects/
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMGIyMGI4NzUxMjg5MzA0ZGZmY2QiLCJpYXQiOjE2MjA3NzQ3NTUsImV4cCI6MTYyMDc3NDg3NX0.OxR5ohkRdDby3NPH2GQhYQxeNG4LObL97i_DrRPLmiM
+GET http://localhost:5000/project/6074d4691477622b950de63a
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA3ODA0ODd9.8NNg5yWuLrSULNy44O33D9xjjXh6GuSTbftV0SGpEkk
 
 ###
-GET http://localhost:5000/projects/606b955a35d1b7d715262273
+GET http://localhost:5000/project/606b955a35d1b7d715262273
 
 
 ###
-GET http://localhost:5000/users/
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMGIyMGI4NzUxMjg5MzA0ZGZmY2QiLCJpYXQiOjE2MjA3NzUyNDh9._YCsjR9QGxHSlPRDyEeNPhChpW2uzqPL-ubk4Mg5Oc8
+GET http://localhost:5000/user/allprojects
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA3ODA0ODd9.8NNg5yWuLrSULNy44O33D9xjjXh6GuSTbftV0SGpEkk
 
 ###
-POST http://localhost:5000/users/register
+POST http://localhost:5000/user/register
 content-type: application/json
 
 {
     "firstName": "David",
     "lastName": "Cottrell",
     "email": "davidjamescottrell@gmail.com",
-    "password": "password"
+    "password": "password",
+    "projects": [
+        {"_id": "6074d4691477622b950de63a"}
+    ]
 }
 
 ###
-POST http://localhost:5000/users/register
+POST http://localhost:5000/user/register
 content-type: application/json
 
 {
@@ -90,7 +93,7 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:5000/users/register
+POST http://localhost:5000/user/register
 content-type: application/json
 
 {
@@ -101,7 +104,7 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:5000/users/login
+POST http://localhost:5000/user/login
 content-type: application/json
 
 {
@@ -110,11 +113,20 @@ content-type: application/json
 }
 
 ###
-POST http://localhost:5000/users/login
+POST http://localhost:5000/user/login
 content-type: application/json
 
 {
     "email": "edsmith@gmail.com",
+    "password": "password123"
+}
+
+###
+POST http://localhost:5000/user/login
+content-type: application/json
+
+{
+    "email": "johndoe@gmail.com",
     "password": "password123"
 }
 

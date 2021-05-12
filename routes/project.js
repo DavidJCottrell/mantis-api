@@ -31,9 +31,22 @@ router.post("/add", verify, async (req, res) => {
 
 //returns a specific project
 router.get("/:projectId", verify, async (req, res) => {
+	const userId = req.user._id;
+
 	try {
 		const project = await Project.findById(req.params.projectId);
-		res.json({ project });
+
+		let userExists = false;
+		for (user of project.users) {
+			console.log(userId + " --- " + user.userId);
+			if (userId == user.userId) {
+				userExists = true;
+				break;
+			}
+		}
+
+		if (userExists) res.json({ project });
+		else res.json({ message: "user does not exist in project" });
 	} catch (error) {
 		res.json({ message: error });
 	}
