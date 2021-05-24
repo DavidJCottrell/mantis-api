@@ -38,10 +38,11 @@ content-type: application/json
 
 
 
-
-
 ###
 # Get a specific project if authed
 GET http://localhost:5000/project/6074d4691477622b950de63a
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
 
+
+
+# Add tasks to a project

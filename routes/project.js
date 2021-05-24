@@ -14,7 +14,7 @@ router.get("/", verify, async (req, res) => {
 	}
 });
 
-//Add project
+//Create project
 router.post("/add", verify, async (req, res) => {
 	const userId = req.user._id;
 
