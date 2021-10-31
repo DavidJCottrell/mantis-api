@@ -22,7 +22,9 @@ mongoose
 		console.log("Error connecting to database");
 	});
 
-app.listen(process.env.PORT);
+app.listen(process.env.PORT, () => {
+	console.log("Server is running on port " + process.env.PORT);
+});
 
 // Clear console after nodemon reload
 // console.clear();

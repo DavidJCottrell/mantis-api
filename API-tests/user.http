@@ -1,18 +1,16 @@
 # Get all project related to the user whos token is passed
-GET http://localhost:5000/user/projects
+GET http://localhost:9000/user/projects
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ2YjJhNWEyNjUiLCJpYXQiOjE2MjA4MzI1MTF9.VzS3BfKHq023GmDqKV9ODQDypVdmYha9S-hUL813ms4
 
 ###
 # Add project to user with provided token
-PATCH http://localhost:5000/user/addproject/609bf1600c638b46b2a5a269
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
-
-
+PATCH http://localhost:9000/user/addproject/617eed598d381b0a66c8f91c
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWE5NDBhMDRiYTA4NzUzZGE3M2UiLCJpYXQiOjE2MzU3MDgzNDR9.4nGHfd0Cdn7sAdqdNiUhwUDCNmlWxwzaqm8TG_P1biA
 
 
 ###
 # David Cottrell register
-POST http://localhost:5000/user/register
+POST http://localhost:9000/user/register 
 content-type: application/json
 
 {
@@ -24,7 +22,7 @@ content-type: application/json
 
 ###
 # Edward Smith register
-POST http://localhost:5000/user/register
+POST http://localhost:9000/user/register
 content-type: application/json
 
 {
@@ -36,7 +34,7 @@ content-type: application/json
 
 ###
 # David Cottrell login
-POST http://localhost:5000/user/login
+POST http://localhost:9000/user/login
 content-type: application/json
 
 {
@@ -47,7 +45,7 @@ content-type: application/json
 
 ###
 # Edward Smith login
-POST http://localhost:5000/user/login
+POST http://localhost:9000/user/login
 content-type: application/json
 
 {

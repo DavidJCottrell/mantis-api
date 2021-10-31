@@ -5,6 +5,16 @@ const verify = require("./verifyToken");
 const { createProjectValidation } = require("../validation.js");
 
 //returns all the projects in the database
+router.get("/all", async (req, res) => {
+	try {
+		const projects = await Project.find();
+		res.json(projects);
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
+//returns all the projects in the database (if you're verified)
 router.get("/", verify, async (req, res) => {
 	try {
 		const projects = await Project.find();

@@ -1,7 +1,7 @@
 ####
 # Create Half Life 3 project
-POST http://localhost:5000/project/add
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ2YjJhNWEyNjUiLCJpYXQiOjE2MjA4MzI1MTF9.VzS3BfKHq023GmDqKV9ODQDypVdmYha9S-hUL813ms4
+POST http://localhost:9000/project/add
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2MzU3MDgyMzN9.y30ANuLeAT0Bhy0CdkreuiQKEaeNtsBsTcS4TbJg6ag
 content-type: application/json
 
 {
@@ -12,7 +12,7 @@ content-type: application/json
 
 ####
 # Create Fallout 3 project
-POST http://localhost:5000/project/add
+POST http://localhost:9000/project/add
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
 content-type: application/json
 
@@ -24,7 +24,7 @@ content-type: application/json
 
 ####
 # Create Club Penguin Project
-POST http://localhost:5000/project/add
+POST http://localhost:9000/project/add
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
 content-type: application/json
 
@@ -37,12 +37,14 @@ content-type: application/json
 }
 
 
-
 ###
 # Get a specific project if authed
-GET http://localhost:5000/project/6074d4691477622b950de63a
+GET http://localhost:9000/project/6074d4691477622b950de63a
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
 
+###
+# Get all projects
+GET http://localhost:9000/project/all
 
 
 # Add tasks to a project
