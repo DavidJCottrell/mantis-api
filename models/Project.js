@@ -58,6 +58,9 @@ const ProjectSchema = mongoose.Schema({
 			],
 		},
 	],
+	description: {
+		type: String,
+	},
 });
 
 module.exports = mongoose.model("projects", ProjectSchema);

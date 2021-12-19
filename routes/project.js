@@ -4,18 +4,8 @@ const Project = require("../models/Project");
 const verify = require("./verifyToken");
 const { createProjectValidation } = require("../validation.js");
 
-//returns all the projects in the database
-router.get("/all", async (req, res) => {
-	try {
-		const projects = await Project.find();
-		res.json(projects);
-	} catch (error) {
-		res.json({ message: error });
-	}
-});
-
-//returns all the projects in the database (if you're verified)
-router.get("/", verify, async (req, res) => {
+//returns all the projects in the database (if you're verified) (should be removed)
+router.get("/all", verify, async (req, res) => {
 	try {
 		const projects = await Project.find();
 		res.json(projects);
@@ -40,6 +30,7 @@ router.post("/add", verify, async (req, res) => {
 			title: req.body.title,
 			users: req.body.users,
 			tasks: req.body.tasks,
+			description: req.body.description,
 		});
 		const savedProject = await project.save();
 		res.status(201).json({ message: "Successfully created project" });
@@ -96,6 +87,22 @@ router.patch("/:projectId", verify, async (req, res) => {
 		);
 		res.json({ updatedProject });
 	} catch (error) {
+		res.json({ error });
+	}
+});
+
+// Add task to project with id
+router.patch("/addtask/:projectId", verify, async (req, res) => {
+	try {
+		const updatedProject = await Project.updateOne(
+			{
+				_id: req.params.projectId,
+			},
+			{ $push: { tasks: [req.body.task] } }
+		);
+		res.json({ updatedProject });
+	} catch (error) {
+		console.log(error);
 		res.json({ error });
 	}
 });

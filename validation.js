@@ -30,6 +30,7 @@ const createProjectValidation = (data) => {
 			.max(1)
 			.required(),
 		tasks: Joi.array().max(1),
+		description: Joi.string().min(1),
 	});
 	return schema.validate(data);
 };

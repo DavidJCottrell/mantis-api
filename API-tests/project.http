@@ -1,31 +1,33 @@
 ####
 # Create Half Life 3 project
 POST http://localhost:9000/project/add
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2MzU3MDgyMzN9.y30ANuLeAT0Bhy0CdkreuiQKEaeNtsBsTcS4TbJg6ag
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
 content-type: application/json
 
 {
     "title": "Half Life 3",
     "users": [],
-    "tasks":[]
+    "tasks":[],
+    "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
 }
 
 ####
-# Create Fallout 3 project
+# Create Fallout 5 project
 POST http://localhost:9000/project/add
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
 content-type: application/json
 
 {
-    "title": "Fallout 3",
+    "title": "Fallout 5",
     "users": [],
-    "tasks":[]
+    "tasks":[],
+    "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
 }
 
 ####
 # Create Club Penguin Project
 POST http://localhost:9000/project/add
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmYTBjNjM4YjQ2YjJhNWEyNjYiLCJpYXQiOjE2MjA4MzI1MTl9.tGX-au2mWYlOBUrbZHOe9ED1s0QRjf2VUBjk7U6a7GI
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
 content-type: application/json
 
 {
@@ -33,7 +35,8 @@ content-type: application/json
     "users": [
         {"userId": "609bd61sssseee33", "role": "Team Leader"}
     ],
-    "tasks":[]
+    "tasks":[],
+    "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
 }
 
 
@@ -45,6 +48,22 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJ
 ###
 # Get all projects
 GET http://localhost:9000/project/all
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
 
 
 # Add tasks to a project
+####
+# Add task to half life 3 project
+PATCH http://localhost:9000/project/addtask/61bf17ef95debb8048515840
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
+content-type: application/json
+
+{
+    "task": {
+		"taskKey": "T1",
+		"title": "Login Bug",
+		"status": "In-progress",
+		"resolution": "Unresolved",
+		"type": "Bug"
+	}
+}
