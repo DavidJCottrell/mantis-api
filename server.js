@@ -7,7 +7,15 @@ const mongoose = require("mongoose");
 const projectRoute = require("./routes/project");
 const userRoute = require("./routes/user");
 
-app.use(express.json());
+var cors = require("cors");
+
+app.use(
+	express.json(),
+	cors({
+		origin: ["http://localhost:3000", "http://192.168.0.98:3000"],
+		default: "http://localhost:3000",
+	})
+);
 
 app.use("/project", projectRoute);
 app.use("/user", userRoute);
@@ -18,8 +26,8 @@ mongoose
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	})
-	.catch(() => {
-		console.log("Error connecting to database");
+	.catch((e) => {
+		console.log("Error connecting to database: ", e);
 	});
 
 app.listen(process.env.PORT, () => {
