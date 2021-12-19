@@ -111,7 +111,7 @@ router.post("/login", async (req, res) => {
 
 	// Check if user exists
 	const user = await User.findOne({
-		email: req.body.email,
+		email: req.body.email.toLowerCase(),
 	});
 	if (!user) return res.status(400).send("Email does not exist"); // Deploy replace with: Email or password is incorrect
 
