@@ -16,9 +16,13 @@ router.get("/all", verify, async (req, res) => {
 
 //Create project
 router.post("/add", verify, async (req, res) => {
-	const userId = req.user._id;
-
-	req.body.users = [{ userId: userId, role: "Team Leader" }];
+	req.body.users = [
+		{
+			userId: req.user._id,
+			name: req.body.users[0].name,
+			role: "Team Leader",
+		},
+	]; // Automatically make the person who created the project the first user
 	req.body.tasks = []; // Ensure no tasks are added when a project is created
 
 	// Validate
@@ -31,6 +35,7 @@ router.post("/add", verify, async (req, res) => {
 			users: req.body.users,
 			tasks: req.body.tasks,
 			description: req.body.description,
+			githubURL: req.body.githubURL,
 		});
 		const savedProject = await project.save();
 		res.status(201).json({ message: "Successfully created project" });
@@ -42,26 +47,21 @@ router.post("/add", verify, async (req, res) => {
 
 //returns a specific project
 router.get("/:projectId", verify, async (req, res) => {
-	const userId = req.user._id;
-
 	try {
 		const project = await Project.findById(req.params.projectId);
 
 		let userExists = false;
 		for (user of project.users) {
-			if (userId == user.userId) {
+			if (req.user._id == user.userId) {
 				userExists = true;
 				break;
 			}
 		}
 
 		if (userExists) res.json({ project });
-		else
-			return res.json({
-				message: "User is not a memeber of this project.",
-			});
+		else res.status(400).send("User is not a memeber of this project.");
 	} catch (error) {
-		res.json({ message: "No project with that ID could be found." });
+		res.status(400).send("No project with that ID could be found.");
 	}
 });
 

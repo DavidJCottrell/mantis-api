@@ -4,8 +4,14 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ
 
 ###
 # Add project to user with provided token
-PATCH http://localhost:9000/user/addproject/617eed598d381b0a66c8f91c
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWE5NDBhMDRiYTA4NzUzZGE3M2UiLCJpYXQiOjE2MzU3MDgzNDR9.4nGHfd0Cdn7sAdqdNiUhwUDCNmlWxwzaqm8TG_P1biA
+PATCH http://localhost:9000/user/addproject/61bf1a8d95debb804851586a
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
+
+###
+# Get user details based on token
+GET http://localhost:9000/user/details
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDAwMzU2ODN9.7n2SpvsEdBpaIvheZK7q-kWJSiz-CX6M3XnguTfGGFk
+
 
 
 ###

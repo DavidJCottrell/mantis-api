@@ -12,14 +12,19 @@ const ProjectSchema = mongoose.Schema({
 					type: mongoose.SchemaTypes.ObjectId,
 					required: true,
 				},
+				name: {
+					type: String,
+					required: true,
+				},
 				role: {
 					type: String,
+					enum: ["Team Leader", "Developer", "Client"],
 					required: true,
 				},
 				_id: false,
 			},
 		],
-		validate: (usersArr) => Array.isArray(usersArr) && usersArr.length > 0,
+		validate: (users) => Array.isArray(users) && users.length > 0,
 	},
 	tasks: [
 		{
@@ -59,6 +64,9 @@ const ProjectSchema = mongoose.Schema({
 		},
 	],
 	description: {
+		type: String,
+	},
+	githubURL: {
 		type: String,
 	},
 });

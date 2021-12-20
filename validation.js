@@ -21,16 +21,18 @@ const loginValidation = (data) => {
 
 const createProjectValidation = (data) => {
 	const schema = Joi.object({
-		title: Joi.string().min(1).required(),
+		title: Joi.string().required(),
 		users: Joi.array()
 			.items({
 				userId: Joi.string().required(),
+				name: Joi.string().required(),
 				role: Joi.string().required(),
 			})
 			.max(1)
 			.required(),
 		tasks: Joi.array().max(1),
-		description: Joi.string().min(1),
+		description: Joi.string().allow(null, ""),
+		githubURL: Joi.string().allow(null, ""),
 	});
 	return schema.validate(data);
 };

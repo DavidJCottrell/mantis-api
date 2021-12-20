@@ -32,9 +32,7 @@ content-type: application/json
 
 {
     "title": "Club Penguin",
-    "users": [
-        {"userId": "609bd61sssseee33", "role": "Team Leader"}
-    ],
+    "users": [],
     "tasks":[],
     "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
 }
@@ -42,17 +40,18 @@ content-type: application/json
 
 ###
 # Get a specific project if authed
-GET http://localhost:9000/project/6074d4691477622b950de63a
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliMjQ2ODI3MjY3ZDJmOWVlM2RmYjUiLCJpYXQiOjE2MjA4MjU3MzR9.hwyCkykkAQUi_dabgm8XUiKzwXrrgN-ONfUGS_1oHXM
+GET http://localhost:9000/project/61bf17ef95debb8048515840
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5NDYyOTZ9.MisQPuE5DwVMY5dJsC9IsaYe8dDHiqPm051GlDPVN-4
+
 
 ###
 # Get all projects
 GET http://localhost:9000/project/all
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
 
-
-# Add tasks to a project
 ####
+# Add tasks to a project
+
 # Add task to half life 3 project
 PATCH http://localhost:9000/project/addtask/61bf17ef95debb8048515840
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
@@ -60,10 +59,10 @@ content-type: application/json
 
 {
     "task": {
-		"taskKey": "T1",
-		"title": "Login Bug",
-		"status": "In-progress",
-		"resolution": "Unresolved",
-		"type": "Bug"
+        "taskKey": "T5",
+        "title": "About Page",
+        "status": "In-progress",
+        "resolution": "Unresolved",
+        "type": "New Feature"
 	}
 }

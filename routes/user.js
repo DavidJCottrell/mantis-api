@@ -18,6 +18,18 @@ router.get("/projects", verify, async (req, res) => {
 	}
 });
 
+// Returns details for a specific user (based on their token)
+router.get("/details", verify, async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id);
+		res.json(user);
+	} catch (error) {
+		res.json({
+			message: error,
+		});
+	}
+});
+
 // Add a project for which that user is a member of
 router.patch("/addproject/:projectId", verify, async (req, res) => {
 	try {
@@ -124,7 +136,11 @@ router.post("/login", async (req, res) => {
 
 	// Create jwt
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-	res.header("auth-token", token).send(token);
+	res.json({
+		token: token,
+		_id: user._id,
+	});
+	// res.header("auth-token", token).send(token);
 });
 
 module.exports = router;
