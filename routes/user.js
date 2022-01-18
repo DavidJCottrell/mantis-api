@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Project = require("../models/Project");
 const verify = require("./verifyToken");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -10,7 +11,15 @@ const { registerValidation, loginValidation } = require("../validation.js");
 router.get("/projects", verify, async (req, res) => {
 	try {
 		const { projects } = await User.findById(req.user._id);
-		res.json(projects);
+
+		let projectsData = [];
+
+		for (const projectId of projects) {
+			const project = await Project.findById(projectId._id);
+			projectsData.push(project);
+		}
+
+		res.json(projectsData);
 	} catch (error) {
 		res.json({
 			message: error,

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
+const User = require("../models/User");
 const verify = require("./verifyToken");
 const { createProjectValidation } = require("../validation.js");
 
@@ -16,10 +17,12 @@ router.get("/all", verify, async (req, res) => {
 
 //Create project
 router.post("/add", verify, async (req, res) => {
+	const user = await User.findById(req.user._id);
+
 	req.body.users = [
 		{
-			userId: req.user._id,
-			name: req.body.users[0].name,
+			userId: String(user._id),
+			name: user.firstName + " " + user.lastName,
 			role: "Team Leader",
 		},
 	]; // Automatically make the person who created the project the first user
@@ -38,7 +41,14 @@ router.post("/add", verify, async (req, res) => {
 			githubURL: req.body.githubURL,
 		});
 		const savedProject = await project.save();
-		res.status(201).json({ message: "Successfully created project" });
+
+		user.projects.push({ _id: project._id });
+		user.save();
+
+		res.status(201).json({
+			message: "Successfully created project",
+			id: project._id,
+		});
 	} catch (error) {
 		console.log("Error saving:", error);
 		res.json({ message: error });
@@ -66,10 +76,19 @@ router.get("/:projectId", verify, async (req, res) => {
 });
 
 router.delete("/:projectId", verify, async (req, res) => {
+	const user = await User.findById(req.user._id);
 	try {
 		const removedProject = await Project.remove({
 			_id: req.params.projectId,
 		});
+
+		var removedProjIdList = user.projects.filter((projID) => {
+			if (String(projID._id) !== String(req.params.projectId))
+				return projID._id;
+		});
+		user.projects = removedProjIdList;
+		user.save();
+
 		res.json({ removedProject });
 	} catch (error) {
 		res.json({ error });
