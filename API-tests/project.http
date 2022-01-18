@@ -14,14 +14,14 @@ content-type: application/json
 ####
 # Create Fallout 5 project
 POST http://localhost:9000/project/add
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1MzE5Mjh9.-VOqiZnNlXIeZUF6eE_1AwJzR4DVavYXhwXbKK8v7qM
 content-type: application/json
 
 {
     "title": "Fallout 5",
     "users": [],
     "tasks":[],
-    "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
+    "description": "Desc"
 }
 
 ####
@@ -38,10 +38,16 @@ content-type: application/json
 }
 
 
+####
+# Delete Fallout 5 project
+DELETE http://localhost:9000/project/61e70fae535d7f3a245c0c06
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1MzE5Mjh9.-VOqiZnNlXIeZUF6eE_1AwJzR4DVavYXhwXbKK8v7qM
+
+
 ###
 # Get a specific project if authed
 GET http://localhost:9000/project/61bf17ef95debb8048515840
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5NDYyOTZ9.MisQPuE5DwVMY5dJsC9IsaYe8dDHiqPm051GlDPVN-4
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1MjgxODV9.MjIC20xWUNjah1T4ROhcqAPOaVYk8lcwlC9c_M4ntBw
 
 
 ###

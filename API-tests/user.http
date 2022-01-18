@@ -1,6 +1,6 @@
 # Get all project related to the user whos token is passed
 GET http://localhost:9000/user/projects
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjBmMjBjNjM4YjQ2YjJhNWEyNjUiLCJpYXQiOjE2MjA4MzI1MTF9.VzS3BfKHq023GmDqKV9ODQDypVdmYha9S-hUL813ms4
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1MzE5Mjh9.-VOqiZnNlXIeZUF6eE_1AwJzR4DVavYXhwXbKK8v7qM
 
 ###
 # Add project to user with provided token
