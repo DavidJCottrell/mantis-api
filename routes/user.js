@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Project = require("../models/Project");
-const { verifyToken } = require("./auth.js");
+const { verifyToken, getRole } = require("./auth.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
@@ -10,14 +10,23 @@ const { registerValidation, loginValidation } = require("../validation.js");
 // Returns all the projects belonging to a specific user (based on their token)
 router.get("/projects", verifyToken, async (req, res) => {
 	try {
+		// Get all project IDs of projects that user is a member of
 		const { projects } = await User.findById(req.user._id);
 
 		let projectsData = [];
 
 		for (const projectId of projects) {
 			const project = await Project.findById(projectId._id);
-			// Incase a deleted project's ID still exisits with user
-			if (project !== null) projectsData.push(project);
+
+			for (const user of project.users) {
+				if (String(user.userId) === String(req.user._id))
+					if (project !== null)
+						// Incase a deleted project's ID still exisits with user
+						projectsData.push({
+							project: project,
+							role: user.role,
+						});
+			}
 		}
 
 		res.json(projectsData);
