@@ -37,6 +37,35 @@ router.get("/projects", verifyToken, async (req, res) => {
 	}
 });
 
+// Returns all the tasks allocated to a specific user (based on their token)
+router.get("/usertasks", verifyToken, async (req, res) => {
+	try {
+		// Get all project IDs of projects that user is a member of
+		const { projects } = await User.findById(req.user._id);
+
+		let assignedTasks = [];
+
+		// For each project id they are a member of
+		for (const projectId of projects) {
+			const project = await Project.findById(projectId._id); // Get the full project from ID
+			// Check if iser exisits in that project
+			for (const task of project.tasks) {
+				if (String(task.assignee.userId) === String(req.user._id)) {
+					assignedTasks.push({
+						task: task,
+						parentProjectTitle: project.title,
+					});
+				}
+			}
+		}
+		res.json(assignedTasks);
+	} catch (error) {
+		res.json({
+			message: error,
+		});
+	}
+});
+
 //Initials followed by 6 digits
 const generateUsername = (firstName, lastName) => {
 	let initials = firstName[0] + lastName[0];

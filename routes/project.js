@@ -9,14 +9,14 @@ const {
 } = require("../validation.js");
 
 //returns all the projects in the database (if you're verified) (should be removed)
-router.get("/all", verifyToken, async (req, res) => {
-	try {
-		const projects = await Project.find();
-		res.json(projects);
-	} catch (error) {
-		res.json({ message: error });
-	}
-});
+// router.get("/all", verifyToken, async (req, res) => {
+// 	try {
+// 		const projects = await Project.find();
+// 		res.json(projects);
+// 	} catch (error) {
+// 		res.json({ message: error });
+// 	}
+// });
 
 // Add a user to project
 router.post("/adduser", verifyToken, async (req, res) => {
