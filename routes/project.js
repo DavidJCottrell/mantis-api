@@ -159,14 +159,36 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		const { error } = createTaskValidation(req.body);
 		if (error) return res.status(400).send(error.details[0].message);
 
-		const assignee = await User.findOne({
-			username: req.body.assignee.username,
-		});
+		const project = await Project.findById(req.params.projectId);
 
-		req.body.assignee = {
-			userId: String(assignee._id),
-			name: assignee.firstName + " " + assignee.lastName,
-		};
+		let assignees = [];
+
+		// for each designated assignee of the task
+		for (const assignee of req.body.assignees) {
+			const tempAssignee = await User.findOne({
+				username: assignee.username,
+			});
+			assignees.push({
+				userId: tempAssignee._id,
+				name: tempAssignee.firstName + " " + tempAssignee.lastName,
+			});
+		}
+
+		let assigneesFound = 0;
+		for (const user of project.users) {
+			for (const assginee of assignees) {
+				if (String(assginee.userId) === String(user.userId)) {
+					assigneesFound += 1;
+				}
+			}
+		}
+
+		if (assigneesFound !== assignees.length)
+			return res
+				.status(400)
+				.send("One or more members are not a member of this project.");
+
+		req.body.assignees = assignees;
 
 		const updatedProject = await Project.updateOne(
 			{

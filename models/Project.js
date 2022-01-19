@@ -32,17 +32,19 @@ const ProjectSchema = mongoose.Schema({
 			title: { type: String, required: true },
 			description: { type: String },
 			type: { type: String, required: true },
-			assignee: {
-				userId: {
-					type: mongoose.SchemaTypes.ObjectId,
-					required: true,
+			assignees: [
+				{
+					userId: {
+						type: mongoose.SchemaTypes.ObjectId,
+						required: true,
+					},
+					name: {
+						type: String,
+						maxlength: 255,
+						required: true,
+					},
 				},
-				name: {
-					type: String,
-					maxlength: 255,
-					required: true,
-				},
-			},
+			],
 			reporter: {
 				userId: {
 					type: mongoose.SchemaTypes.ObjectId,

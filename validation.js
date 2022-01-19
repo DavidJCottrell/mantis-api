@@ -43,9 +43,12 @@ const createTaskValidation = (data) => {
 		title: Joi.string().required(),
 		description: Joi.string().allow(null, ""),
 		type: Joi.string().required(),
-		assignee: Joi.object({
-			username: Joi.string().required(),
-		}).required(),
+		assignees: Joi.array()
+			.items({
+				username: Joi.string().required(),
+			})
+			.min(1)
+			.required(),
 		reporter: Joi.object({
 			userId: Joi.string().required(),
 			name: Joi.string().required(),

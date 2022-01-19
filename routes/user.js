@@ -47,14 +47,16 @@ router.get("/usertasks", verifyToken, async (req, res) => {
 
 		// For each project id they are a member of
 		for (const projectId of projects) {
-			const project = await Project.findById(projectId._id); // Get the full project from ID
-			// Check if iser exisits in that project
+			const project = await Project.findById(projectId._id); // Get the full project from the ID
+			// Check if user exisits in that project
 			for (const task of project.tasks) {
-				if (String(task.assignee.userId) === String(req.user._id)) {
-					assignedTasks.push({
-						task: task,
-						parentProjectTitle: project.title,
-					});
+				for (const assignee of task.assignees) {
+					if (String(assignee.userId) === String(req.user._id)) {
+						assignedTasks.push({
+							task: task,
+							parentProjectTitle: project.title,
+						});
+					}
 				}
 			}
 		}
