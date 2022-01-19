@@ -15,6 +15,39 @@ router.get("/all", verify, async (req, res) => {
 	}
 });
 
+// Add a user to project
+router.post("/adduser", verify, async (req, res) => {
+	try {
+		const project = await Project.findById(req.body.projectId);
+		const user = await User.findOne({ username: req.body.username });
+
+		if (user === null) return res.status(400).send("User does not exist");
+		for (existingUser of project.users) {
+			if (String(user._id) === String(existingUser.userId))
+				return res
+					.status(400)
+					.send("This user is already a member of this project");
+		}
+
+		user.projects.push({ _id: project._id });
+		project.users.push({
+			userId: user._id,
+			name: user.firstName + " " + user.lastName,
+			role: req.body.role,
+		});
+
+		user.save();
+		project.save();
+
+		res.status(201).json({
+			message: "Successfully add user to project",
+			id: project._id,
+		});
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
 //Create project
 router.post("/add", verify, async (req, res) => {
 	const user = await User.findById(req.user._id);

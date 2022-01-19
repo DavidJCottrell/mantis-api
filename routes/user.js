@@ -7,16 +7,24 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
+// Get the role the user has for the specified project
+function getRole(user, project) {
+	
+}
+
 // Returns all the projects belonging to a specific user (based on their token)
 router.get("/projects", verify, async (req, res) => {
 	try {
 		const { projects } = await User.findById(req.user._id);
 
+		console.log(projects);
+
 		let projectsData = [];
 
 		for (const projectId of projects) {
 			const project = await Project.findById(projectId._id);
-			projectsData.push(project);
+			// Incase a delete project's ID still exisits with user
+			if (project !== null) projectsData.push(project);
 		}
 
 		res.json(projectsData);
@@ -40,28 +48,28 @@ router.get("/projects", verify, async (req, res) => {
 // });
 
 // Add a project for which that user is a member of
-router.patch("/addproject/:projectId", verify, async (req, res) => {
-	try {
-		const user = await User.findById(req.user._id);
+// router.patch("/addproject/:projectId", verify, async (req, res) => {
+// 	try {
+// 		const user = await User.findById(req.user._id);
 
-		let exists = false;
+// 		let exists = false;
 
-		// Check if user is already a member of that project
-		for (project of user.projects)
-			exists = project._id === req.params.projectId ? true : false;
+// 		// Check if user is already a member of that project
+// 		for (project of user.projects)
+// 			exists = project._id === req.params.projectId ? true : false;
 
-		if (exists)
-			return res
-				.status(400)
-				.json({ message: "User is already a member of this project" });
+// 		if (exists)
+// 			return res
+// 				.status(400)
+// 				.json({ message: "User is already a member of this project" });
 
-		user.projects.push({ _id: req.params.projectId });
-		user.save();
-		res.json({ message: "Successfully added project to user" });
-	} catch (error) {
-		res.json({ message: error });
-	}
-});
+// 		user.projects.push({ _id: req.params.projectId });
+// 		user.save();
+// 		res.json({ message: "Successfully added project to user" });
+// 	} catch (error) {
+// 		res.json({ message: error });
+// 	}
+// });
 
 //Initials followed by 6 digits
 const generateUsername = (firstName, lastName) => {

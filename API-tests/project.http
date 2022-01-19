@@ -37,6 +37,17 @@ content-type: application/json
     "description": "A description of the project should go here... Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique, sequi."
 }
 
+####
+# Add user to project
+POST http://localhost:9000/project/adduser
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1OTE1Mzl9.LAWbHyflQGcfKBjd-_O40p2ZzrTTT9Sx9JPCY0VzPbI
+content-type: application/json
+
+{
+    "projectId": "61e7136bc2bf4d41c1576f2d",
+    "username": "JT343254",
+    "role": "Developer"
+}
 
 ####
 # Delete Fallout 5 project
@@ -53,7 +64,7 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjB
 ###
 # Get all projects
 GET http://localhost:9000/project/all
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1OTE1Mzl9.LAWbHyflQGcfKBjd-_O40p2ZzrTTT9Sx9JPCY0VzPbI
 
 ####
 # Add tasks to a project
