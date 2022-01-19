@@ -7,17 +7,10 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
-// Get the role the user has for the specified project
-function getRole(user, project) {
-	
-}
-
 // Returns all the projects belonging to a specific user (based on their token)
 router.get("/projects", verify, async (req, res) => {
 	try {
 		const { projects } = await User.findById(req.user._id);
-
-		console.log(projects);
 
 		let projectsData = [];
 

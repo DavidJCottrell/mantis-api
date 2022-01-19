@@ -5,6 +5,15 @@ const User = require("../models/User");
 const verify = require("./verifyToken");
 const { createProjectValidation } = require("../validation.js");
 
+// Get the role the user has for the specified project
+function getRole(user, project) {
+	for (const projectMember of project.users) {
+		if (String(user._id) === String(projectMember.userId))
+			return projectMember.role;
+	}
+	return null;
+}
+
 //returns all the projects in the database (if you're verified) (should be removed)
 router.get("/all", verify, async (req, res) => {
 	try {
@@ -19,28 +28,34 @@ router.get("/all", verify, async (req, res) => {
 router.post("/adduser", verify, async (req, res) => {
 	try {
 		const project = await Project.findById(req.body.projectId);
-		const user = await User.findOne({ username: req.body.username });
+		const userToAdd = await User.findOne({ username: req.body.username });
 
-		if (user === null) return res.status(400).send("User does not exist");
+		if (userToAdd === null)
+			return res.status(400).send("User does not exist");
 		for (existingUser of project.users) {
-			if (String(user._id) === String(existingUser.userId))
+			if (String(userToAdd._id) === String(existingUser.userId))
 				return res
 					.status(400)
 					.send("This user is already a member of this project");
 		}
 
-		user.projects.push({ _id: project._id });
+		const requestingUser = await User.findById(req.user._id);
+
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
+
+		userToAdd.projects.push({ _id: project._id });
 		project.users.push({
-			userId: user._id,
-			name: user.firstName + " " + user.lastName,
+			userId: userToAdd._id,
+			name: userToAdd.firstName + " " + userToAdd.lastName,
 			role: req.body.role,
 		});
 
-		user.save();
+		userToAdd.save();
 		project.save();
 
 		res.status(201).json({
-			message: "Successfully add user to project",
+			message: "Successfully added user to project",
 			id: project._id,
 		});
 	} catch (error) {
