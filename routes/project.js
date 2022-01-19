@@ -2,20 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
 const User = require("../models/User");
-const verify = require("./verifyToken");
+const { verifyToken, getRole } = require("./auth.js");
 const { createProjectValidation } = require("../validation.js");
 
-// Get the role the user has for the specified project
-function getRole(user, project) {
-	for (const projectMember of project.users) {
-		if (String(user._id) === String(projectMember.userId))
-			return projectMember.role;
-	}
-	return null;
-}
-
 //returns all the projects in the database (if you're verified) (should be removed)
-router.get("/all", verify, async (req, res) => {
+router.get("/all", verifyToken, async (req, res) => {
 	try {
 		const projects = await Project.find();
 		res.json(projects);
@@ -25,7 +16,7 @@ router.get("/all", verify, async (req, res) => {
 });
 
 // Add a user to project
-router.post("/adduser", verify, async (req, res) => {
+router.post("/adduser", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.body.projectId);
 		const userToAdd = await User.findOne({ username: req.body.username });
@@ -64,7 +55,7 @@ router.post("/adduser", verify, async (req, res) => {
 });
 
 //Create project
-router.post("/add", verify, async (req, res) => {
+router.post("/add", verifyToken, async (req, res) => {
 	const user = await User.findById(req.user._id);
 
 	req.body.users = [
@@ -104,7 +95,7 @@ router.post("/add", verify, async (req, res) => {
 });
 
 //returns a specific project
-router.get("/:projectId", verify, async (req, res) => {
+router.get("/:projectId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
 
@@ -123,7 +114,7 @@ router.get("/:projectId", verify, async (req, res) => {
 	}
 });
 
-router.delete("/:projectId", verify, async (req, res) => {
+router.delete("/:projectId", verifyToken, async (req, res) => {
 	const user = await User.findById(req.user._id);
 	try {
 		const removedProject = await Project.remove({
@@ -144,7 +135,7 @@ router.delete("/:projectId", verify, async (req, res) => {
 });
 
 //Update project
-router.patch("/:projectId", verify, async (req, res) => {
+router.patch("/:projectId", verifyToken, async (req, res) => {
 	try {
 		const updatedProject = await Project.updateOne(
 			{
@@ -159,7 +150,7 @@ router.patch("/:projectId", verify, async (req, res) => {
 });
 
 // Add task to project with id
-router.patch("/addtask/:projectId", verify, async (req, res) => {
+router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 	try {
 		const updatedProject = await Project.updateOne(
 			{

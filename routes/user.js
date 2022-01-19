@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Project = require("../models/Project");
-const verify = require("./verifyToken");
+const { verifyToken } = require("./auth.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
 
 // Returns all the projects belonging to a specific user (based on their token)
-router.get("/projects", verify, async (req, res) => {
+router.get("/projects", verifyToken, async (req, res) => {
 	try {
 		const { projects } = await User.findById(req.user._id);
 
@@ -16,7 +16,7 @@ router.get("/projects", verify, async (req, res) => {
 
 		for (const projectId of projects) {
 			const project = await Project.findById(projectId._id);
-			// Incase a delete project's ID still exisits with user
+			// Incase a deleted project's ID still exisits with user
 			if (project !== null) projectsData.push(project);
 		}
 
@@ -27,42 +27,6 @@ router.get("/projects", verify, async (req, res) => {
 		});
 	}
 });
-
-// Returns details for a specific user (based on their token)
-// router.get("/details", verify, async (req, res) => {
-// 	try {
-// 		const user = await User.findById(req.user._id);
-// 		res.json(user);
-// 	} catch (error) {
-// 		res.json({
-// 			message: error,
-// 		});
-// 	}
-// });
-
-// Add a project for which that user is a member of
-// router.patch("/addproject/:projectId", verify, async (req, res) => {
-// 	try {
-// 		const user = await User.findById(req.user._id);
-
-// 		let exists = false;
-
-// 		// Check if user is already a member of that project
-// 		for (project of user.projects)
-// 			exists = project._id === req.params.projectId ? true : false;
-
-// 		if (exists)
-// 			return res
-// 				.status(400)
-// 				.json({ message: "User is already a member of this project" });
-
-// 		user.projects.push({ _id: req.params.projectId });
-// 		user.save();
-// 		res.json({ message: "Successfully added project to user" });
-// 	} catch (error) {
-// 		res.json({ message: error });
-// 	}
-// });
 
 //Initials followed by 6 digits
 const generateUsername = (firstName, lastName) => {
