@@ -70,16 +70,22 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjB
 # Add tasks to a project
 
 # Add task to half life 3 project
-PATCH http://localhost:9000/project/addtask/61bf17ef95debb8048515840
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2Mzk5MTE3MTh9.GXXj6DdqoMQA8NOx5bM6t4p9Xy6KytqW9DkCwP3RrW4
+PATCH http://localhost:9000/project/addtask/61e7136bc2bf4d41c1576f2d
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1OTk1NTN9.pRdyMRM1umEA-fZ9ctli-zYQs-LyiP-mUitdbqdzWms
 content-type: application/json
 
 {
-    "task": {
-        "taskKey": "T5",
-        "title": "About Page",
-        "status": "In-progress",
-        "resolution": "Unresolved",
-        "type": "New Feature"
-	}
+    "taskKey": "T2",
+    "title": "About Page",
+    "description": "",
+    "status": "In-progress",
+    "resolution": "Unresolved",
+    "type": "New Feature",
+    "assignee": {
+        "username": "JT343254"
+    },
+    "reporter": {
+        "userId": "617eed458d381b0a66c8f91b",
+        "name": "David Cottrell"
+    }
 }

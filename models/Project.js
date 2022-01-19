@@ -30,15 +30,29 @@ const ProjectSchema = mongoose.Schema({
 		{
 			taskKey: { type: String, required: true },
 			title: { type: String, required: true },
-			description: { type: String, required: true },
+			description: { type: String },
 			type: { type: String, required: true },
 			assignee: {
-				type: mongoose.Schema.Types.ObjectId,
-				required: true,
+				userId: {
+					type: mongoose.SchemaTypes.ObjectId,
+					required: true,
+				},
+				name: {
+					type: String,
+					maxlength: 255,
+					required: true,
+				},
 			},
 			reporter: {
-				type: mongoose.Schema.Types.ObjectId,
-				required: true,
+				userId: {
+					type: mongoose.SchemaTypes.ObjectId,
+					required: true,
+				},
+				name: {
+					type: String,
+					maxlength: 255,
+					required: true,
+				},
 			},
 			status: { type: String, required: true },
 			resolution: { type: String, required: true },

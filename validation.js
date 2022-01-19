@@ -37,7 +37,28 @@ const createProjectValidation = (data) => {
 	return schema.validate(data);
 };
 
-module.exports.createProjectValidation = createProjectValidation;
+const createTaskValidation = (data) => {
+	const schema = Joi.object({
+		taskKey: Joi.string().required(),
+		title: Joi.string().required(),
+		description: Joi.string().allow(null, ""),
+		type: Joi.string().required(),
+		assignee: Joi.object({
+			username: Joi.string().required(),
+		}).required(),
+		reporter: Joi.object({
+			userId: Joi.string().required(),
+			name: Joi.string().required(),
+		}).required(),
+		status: Joi.string().required(),
+		resolution: Joi.string().required(),
+		dateCreated: Joi.string().required(),
+		dateDue: Joi.string().allow(null, ""),
+	});
+	return schema.validate(data);
+};
 
+module.exports.createProjectValidation = createProjectValidation;
+module.exports.createTaskValidation = createTaskValidation;
 module.exports.registerValidation = registerValidation;
 module.exports.loginValidation = loginValidation;

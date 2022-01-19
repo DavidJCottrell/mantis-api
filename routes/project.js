@@ -3,7 +3,10 @@ const router = express.Router();
 const Project = require("../models/Project");
 const User = require("../models/User");
 const { verifyToken, getRole } = require("./auth.js");
-const { createProjectValidation } = require("../validation.js");
+const {
+	createProjectValidation,
+	createTaskValidation,
+} = require("../validation.js");
 
 //returns all the projects in the database (if you're verified) (should be removed)
 router.get("/all", verifyToken, async (req, res) => {
@@ -47,7 +50,7 @@ router.post("/adduser", verifyToken, async (req, res) => {
 
 		res.status(201).json({
 			message: "Successfully added user to project",
-			id: project._id,
+			// id: project._id,
 		});
 	} catch (error) {
 		res.json({ message: error });
@@ -152,13 +155,28 @@ router.patch("/:projectId", verifyToken, async (req, res) => {
 // Add task to project with id
 router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 	try {
+		// Validate
+		const { error } = createTaskValidation(req.body);
+		if (error) return res.status(400).send(error.details[0].message);
+
+		const assignee = await User.findOne({
+			username: req.body.assignee.username,
+		});
+
+		req.body.assignee = {
+			userId: String(assignee._id),
+			name: assignee.firstName + " " + assignee.lastName,
+		};
+
 		const updatedProject = await Project.updateOne(
 			{
 				_id: req.params.projectId,
 			},
-			{ $push: { tasks: [req.body.task] } }
+			{ $push: { tasks: [req.body] } }
 		);
-		res.json({ updatedProject });
+		res.status(201).json({
+			message: "Successfully added task to project",
+		});
 	} catch (error) {
 		console.log(error);
 		res.json({ error });
