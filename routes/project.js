@@ -8,16 +8,6 @@ const {
 	createTaskValidation,
 } = require("../validation.js");
 
-//returns all the projects in the database (if you're verified) (should be removed)
-// router.get("/all", verifyToken, async (req, res) => {
-// 	try {
-// 		const projects = await Project.find();
-// 		res.json(projects);
-// 	} catch (error) {
-// 		res.json({ message: error });
-// 	}
-// });
-
 // Add a user to project
 router.post("/adduser", verifyToken, async (req, res) => {
 	try {
@@ -58,7 +48,7 @@ router.post("/adduser", verifyToken, async (req, res) => {
 	}
 });
 
-//Create project
+// Create project
 router.post("/add", verifyToken, async (req, res) => {
 	const user = await User.findById(req.user._id);
 
@@ -99,7 +89,7 @@ router.post("/add", verifyToken, async (req, res) => {
 	}
 });
 
-//returns a specific project
+// Returns a specific project
 router.get("/:projectId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
@@ -139,7 +129,7 @@ router.delete("/:projectId", verifyToken, async (req, res) => {
 	}
 });
 
-//Update project
+// Update project
 router.patch("/:projectId", verifyToken, async (req, res) => {
 	try {
 		const updatedProject = await Project.updateOne(
