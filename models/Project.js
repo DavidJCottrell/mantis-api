@@ -16,6 +16,10 @@ const ProjectSchema = mongoose.Schema({
 					type: String,
 					required: true,
 				},
+				username: {
+					type: String,
+					required: true,
+				},
 				role: {
 					type: String,
 					enum: ["Team Leader", "Developer", "Client"],
@@ -60,6 +64,7 @@ const ProjectSchema = mongoose.Schema({
 			resolution: { type: String, required: true },
 			dateCreated: { type: String, required: true },
 			dateUpdated: { type: String },
+			dateDue: { type: String },
 			comments: [
 				{
 					content: { type: String, required: true },

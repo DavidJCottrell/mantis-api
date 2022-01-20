@@ -12,7 +12,7 @@ var cors = require("cors");
 app.use(
 	express.json(),
 	cors({
-		origin: ["http://localhost:3000", "http://192.168.0.98:3000"],
+		origin: ["http://localhost:3000", "http://192.168.0.159:3000"],
 		default: "http://localhost:3000",
 	})
 );

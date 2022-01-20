@@ -26,6 +26,7 @@ const createProjectValidation = (data) => {
 			.items({
 				userId: Joi.string().required(),
 				name: Joi.string().required(),
+				username: Joi.string().required(),
 				role: Joi.string().required(),
 			})
 			.max(1)

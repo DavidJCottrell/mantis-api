@@ -42,6 +42,7 @@ router.post("/adduser", verifyToken, async (req, res) => {
 		project.users.push({
 			userId: userToAdd._id,
 			name: userToAdd.firstName + " " + userToAdd.lastName,
+			username: userToAdd.username,
 			role: req.body.role,
 		});
 
@@ -65,6 +66,7 @@ router.post("/add", verifyToken, async (req, res) => {
 		{
 			userId: String(user._id),
 			name: user.firstName + " " + user.lastName,
+			username: user.username,
 			role: "Team Leader",
 		},
 	]; // Automatically make the person who created the project the first user
@@ -189,6 +191,8 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 				.send("One or more members are not a member of this project.");
 
 		req.body.assignees = assignees;
+
+		console.log(req.body);
 
 		const updatedProject = await Project.updateOne(
 			{
