@@ -182,8 +182,6 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 
 		req.body.assignees = assignees;
 
-		console.log(req.body);
-
 		const updatedProject = await Project.updateOne(
 			{
 				_id: req.params.projectId,
