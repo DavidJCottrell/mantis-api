@@ -109,9 +109,10 @@ router.get("/:projectId", verifyToken, async (req, res) => {
 	}
 });
 
+// Delete project
 router.delete("/:projectId", verifyToken, async (req, res) => {
-	const user = await User.findById(req.user._id);
 	try {
+		const user = await User.findById(req.user._id);
 		const removedProject = await Project.remove({
 			_id: req.params.projectId,
 		});
@@ -124,6 +125,36 @@ router.delete("/:projectId", verifyToken, async (req, res) => {
 		user.save();
 
 		res.json({ removedProject });
+	} catch (error) {
+		res.json({ error });
+	}
+});
+
+// Remove task
+router.patch("/:projectId/:taskId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
+
+		let tasks = [];
+		for (const task of project.tasks) {
+			if (String(task._id) !== String(req.params.taskId)) {
+				tasks.push(task);
+			}
+		}
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { tasks: tasks } }
+		);
+
+		res.status(201).json({
+			message: "Successfully deleted task",
+		});
 	} catch (error) {
 		res.json({ error });
 	}
