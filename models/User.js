@@ -29,18 +29,12 @@ const UserSchema = mongoose.Schema({
 		min: 6,
 		max: 1024,
 	},
-	projects: {
-		type: Array,
-		default: [],
-	},
-	// invitations: [
-	// 	{
-	// 		title: { type: String, required: true },
-	// 		role: { type: String, required: true },
-	// 		from: { type: String, required: true },
-	// 		projectId: { type: mongoose.SchemaTypes.ObjectId, required: true },
-	// 	},
-	// ],
+	projects: [
+		{
+			projectId: { type: mongoose.Schema.Types.ObjectId, required: true },
+			_id: false,
+		},
+	],
 	date: {
 		type: Date,
 		default: Date.now,

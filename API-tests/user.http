@@ -14,6 +14,18 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjB
 
 
 
+
+
+
+###
+# Get invitations for user
+GET http://localhost:9000/user/invitations
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTMzNTVjMmY4MTM1NDU5MTAwOTMiLCJpYXQiOjE2NDI5Mzc2NTR9.URcFgtYh4nysq5KcRpWKmHJbE5LL4KOb_91z2QPxVpw
+
+
+
+
+
 ###
 # David Cottrell register
 POST http://localhost:9000/user/register 

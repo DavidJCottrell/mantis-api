@@ -2,20 +2,36 @@ const mongoose = require("mongoose");
 
 const InvitationSchema = mongoose.Schema({
 	invitee: {
-		type: String,
-		required: true,
+		userId: {
+			type: mongoose.SchemaTypes.ObjectId,
+			required: true,
+		},
+		name: {
+			type: String,
+			maxlength: 255,
+			required: true,
+		},
 	},
 	inviter: {
-		type: String,
-		required: true,
+		userId: {
+			type: mongoose.SchemaTypes.ObjectId,
+			required: true,
+		},
+		name: {
+			type: String,
+			maxlength: 255,
+			required: true,
+		},
 	},
-	projectTitle: {
-		type: String,
-		required: true,
-	},
-	projectId: {
-		type: mongoose.SchemaTypes.ObjectId,
-		required: true,
+	project: {
+		title: {
+			type: String,
+			required: true,
+		},
+		projectId: {
+			type: mongoose.SchemaTypes.ObjectId,
+			required: true,
+		},
 	},
 	role: {
 		type: String,

@@ -9,76 +9,39 @@ const {
 	createInviteValidation,
 } = require("../validation.js");
 
-// send invite for project
-router.post("/sendinvite/:username", verifyToken, async (req, res) => {
+// Add a user to project
+router.post("/adduser", verifyToken, async (req, res) => {
 	try {
-		const invitedUser = await User.findOne({
-			username: req.params.username,
-		});
+		const project = await Project.findById(req.body.projectId);
+		const userToAdd = await User.findById(req.body.userId);
 
-		// Check user exsists
-		if (!invitedUser) {
-			res.status(404).json({
-				message: "User not found",
-			});
+		if (userToAdd === null)
+			return res.status(400).send("User does not exist");
+		for (existingUser of project.users) {
+			if (String(userToAdd._id) === String(existingUser.userId))
+				return res
+					.status(400)
+					.send("This user is already a member of this project");
 		}
 
-		// Validate invite data
-		const { error } = createInviteValidation(req.body);
-		if (error) return res.status(400).send(error.details[0].message);
+		userToAdd.projects.push({ projectId: project._id });
+		project.users.push({
+			userId: userToAdd._id,
+			name: userToAdd.firstName + " " + userToAdd.lastName,
+			username: userToAdd.username,
+			role: req.body.role,
+		});
 
-		await User.updateOne(
-			{
-				_id: invitedUser._id,
-			},
-			{ $push: { invitations: [req.body] } }
-		);
+		userToAdd.save();
+		project.save();
 
 		res.status(201).json({
-			message: "Successfully invited user",
+			message: "Successfully added user to project",
 		});
-	} catch (e) {}
+	} catch (error) {
+		res.json({ message: error });
+	}
 });
-
-// Add a user to project
-// router.post("/adduser", verifyToken, async (req, res) => {
-// 	try {
-// 		const project = await Project.findById(req.body.projectId);
-// 		const userToAdd = await User.findOne({ username: req.body.username });
-
-// 		if (userToAdd === null)
-// 			return res.status(400).send("User does not exist");
-// 		for (existingUser of project.users) {
-// 			if (String(userToAdd._id) === String(existingUser.userId))
-// 				return res
-// 					.status(400)
-// 					.send("This user is already a member of this project");
-// 		}
-
-// 		const requestingUser = await User.findById(req.user._id);
-
-// 		if (getRole(requestingUser, project) !== "Team Leader")
-// 			return res.status(400).send("Permission denied.");
-
-// 		userToAdd.projects.push({ _id: project._id });
-// 		project.users.push({
-// 			userId: userToAdd._id,
-// 			name: userToAdd.firstName + " " + userToAdd.lastName,
-// 			username: userToAdd.username,
-// 			role: req.body.role,
-// 		});
-
-// 		userToAdd.save();
-// 		project.save();
-
-// 		res.status(201).json({
-// 			message: "Successfully added user to project",
-// 			// id: project._id,
-// 		});
-// 	} catch (error) {
-// 		res.json({ message: error });
-// 	}
-// });
 
 // Create project
 router.post("/add", verifyToken, async (req, res) => {
@@ -106,9 +69,9 @@ router.post("/add", verifyToken, async (req, res) => {
 			description: req.body.description,
 			githubURL: req.body.githubURL,
 		});
-		const savedProject = await project.save();
+		await project.save();
 
-		user.projects.push({ _id: project._id });
+		user.projects.push({ projectId: project._id });
 		user.save();
 
 		res.status(201).json({
@@ -162,6 +125,22 @@ router.delete("/:projectId", verifyToken, async (req, res) => {
 	}
 });
 
+// Get all sent invitations for a project
+router.get("/invitations/:projectId", verifyToken, async (req, res) => {
+	try {
+		const invitations = await Invitation.find({
+			"project.projectId": req.params.projectId,
+		});
+		res.json({
+			invitations,
+		});
+	} catch (error) {
+		res.json({
+			message: error,
+		});
+	}
+});
+
 // Remove task
 router.patch("/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
@@ -191,6 +170,40 @@ router.patch("/:projectId/:taskId", verifyToken, async (req, res) => {
 		res.json({ error });
 	}
 });
+
+// Remove user from project
+router.patch(
+	"/removeuser/:userId/:projectId",
+	verifyToken,
+	async (req, res) => {
+		try {
+			const project = await Project.findById(req.params.projectId);
+			const user = await User.findById(req.params.userId);
+
+			const requestingUser = await User.findById(req.user._id);
+			if (getRole(requestingUser, project) !== "Team Leader")
+				return res.status(400).send("Permission denied.");
+
+			await Project.updateOne(
+				{ _id: project._id },
+				{ $pull: { users: { userId: user._id } } },
+				{ safe: true, multi: true }
+			);
+
+			await User.updateOne(
+				{ _id: user._id },
+				{ $pull: { projects: { projectId: project._id } } },
+				{ safe: true, multi: true }
+			);
+
+			res.status(201).json({
+				message: "Successfully removed user",
+			});
+		} catch (error) {
+			res.json({ error });
+		}
+	}
+);
 
 // Update project
 // router.patch("/:projectId", verifyToken, async (req, res) => {

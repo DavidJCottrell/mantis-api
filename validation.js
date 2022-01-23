@@ -22,9 +22,14 @@ const registerValidation = (data) => {
 
 const createInviteValidation = (data) => {
 	const schema = Joi.object({
-		inviter: Joi.string().required(),
-		projectTitle: Joi.string().required(),
-		projectId: Joi.string().required(),
+		inviter: Joi.object({
+			userId: Joi.string().required(),
+			name: Joi.string().required(),
+		}).required(),
+		project: Joi.object({
+			title: Joi.string().required(),
+			projectId: Joi.string().required(),
+		}).required(),
 		role: Joi.string().required(),
 	});
 	return schema.validate(data);
@@ -73,8 +78,8 @@ const createTaskValidation = (data) => {
 	return schema.validate(data);
 };
 
+// module.exports.loginValidation = loginValidation;
 module.exports.createProjectValidation = createProjectValidation;
 module.exports.createTaskValidation = createTaskValidation;
 module.exports.registerValidation = registerValidation;
-// module.exports.loginValidation = loginValidation;
 module.exports.createInviteValidation = createInviteValidation;

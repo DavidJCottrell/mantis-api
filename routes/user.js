@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Project = require("../models/Project");
+const Invitation = require("../models/Invitation");
 const { verifyToken, getRole } = require("./auth.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -15,8 +16,8 @@ router.get("/projects", verifyToken, async (req, res) => {
 
 		let projectsData = [];
 
-		for (const projectId of projects) {
-			const project = await Project.findById(projectId._id);
+		for (const { projectId } of projects) {
+			const project = await Project.findById(projectId);
 
 			for (const user of project.users) {
 				if (String(user.userId) === String(req.user._id))
@@ -29,7 +30,23 @@ router.get("/projects", verifyToken, async (req, res) => {
 			}
 		}
 
-		res.json(projectsData);
+		res.status(200).json(projectsData);
+	} catch (error) {
+		res.json({
+			message: error,
+		});
+	}
+});
+
+// Get all invitations for a user
+router.get("/invitations", verifyToken, async (req, res) => {
+	try {
+		const invitations = await Invitation.find({
+			"invitee.userId": req.user._id,
+		});
+		res.json({
+			invitations,
+		});
 	} catch (error) {
 		res.json({
 			message: error,
@@ -46,8 +63,8 @@ router.get("/usertasks", verifyToken, async (req, res) => {
 		let assignedTasks = [];
 
 		// For each project id they are a member of
-		for (const projectId of projects) {
-			const project = await Project.findById(projectId._id); // Get the full project from the ID
+		for (const { projectId } of projects) {
+			const project = await Project.findById(projectId); // Get the full project from the ID
 			// Check if user exisits in that project
 			for (const task of project.tasks) {
 				for (const assignee of task.assignees) {

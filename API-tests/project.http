@@ -89,3 +89,11 @@ content-type: application/json
         "name": "David Cottrell"
     }
 }
+
+
+
+####
+# Remove user from project
+
+PATCH http://localhost:9000/project/removeuser/61ec93355c2f813545910093/61ec93165c2f813545910087
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDI5NDQzOTZ9.5uscdz5kRv1Ecru0EtfqiJHBwD17PN-kjhYf9EAtElU
