@@ -6,19 +6,21 @@ const mongoose = require("mongoose");
 //Import routes
 const projectRoute = require("./routes/project");
 const userRoute = require("./routes/user");
+const invitationRoute = require("./routes/invitation");
 
 var cors = require("cors");
 
 app.use(
 	express.json(),
 	cors({
-		origin: ["http://localhost:3000", "http://192.168.0.159:3000"],
+		origin: ["http://localhost:3000", process.env.BASE_URL + ":3000"],
 		default: "http://localhost:3000",
 	})
 );
 
 app.use("/project", projectRoute);
 app.use("/user", userRoute);
+app.use("/invitation", invitationRoute);
 
 //Connect to DB
 mongoose

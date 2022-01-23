@@ -6,47 +6,79 @@ const { verifyToken, getRole } = require("./auth.js");
 const {
 	createProjectValidation,
 	createTaskValidation,
+	createInviteValidation,
 } = require("../validation.js");
 
-// Add a user to project
-router.post("/adduser", verifyToken, async (req, res) => {
+// send invite for project
+router.post("/sendinvite/:username", verifyToken, async (req, res) => {
 	try {
-		const project = await Project.findById(req.body.projectId);
-		const userToAdd = await User.findOne({ username: req.body.username });
+		const invitedUser = await User.findOne({
+			username: req.params.username,
+		});
 
-		if (userToAdd === null)
-			return res.status(400).send("User does not exist");
-		for (existingUser of project.users) {
-			if (String(userToAdd._id) === String(existingUser.userId))
-				return res
-					.status(400)
-					.send("This user is already a member of this project");
+		// Check user exsists
+		if (!invitedUser) {
+			res.status(404).json({
+				message: "User not found",
+			});
 		}
 
-		const requestingUser = await User.findById(req.user._id);
+		// Validate invite data
+		const { error } = createInviteValidation(req.body);
+		if (error) return res.status(400).send(error.details[0].message);
 
-		if (getRole(requestingUser, project) !== "Team Leader")
-			return res.status(400).send("Permission denied.");
-
-		userToAdd.projects.push({ _id: project._id });
-		project.users.push({
-			userId: userToAdd._id,
-			name: userToAdd.firstName + " " + userToAdd.lastName,
-			username: userToAdd.username,
-			role: req.body.role,
-		});
-
-		userToAdd.save();
-		project.save();
+		await User.updateOne(
+			{
+				_id: invitedUser._id,
+			},
+			{ $push: { invitations: [req.body] } }
+		);
 
 		res.status(201).json({
-			message: "Successfully added user to project",
-			// id: project._id,
+			message: "Successfully invited user",
 		});
-	} catch (error) {
-		res.json({ message: error });
-	}
+	} catch (e) {}
 });
+
+// Add a user to project
+// router.post("/adduser", verifyToken, async (req, res) => {
+// 	try {
+// 		const project = await Project.findById(req.body.projectId);
+// 		const userToAdd = await User.findOne({ username: req.body.username });
+
+// 		if (userToAdd === null)
+// 			return res.status(400).send("User does not exist");
+// 		for (existingUser of project.users) {
+// 			if (String(userToAdd._id) === String(existingUser.userId))
+// 				return res
+// 					.status(400)
+// 					.send("This user is already a member of this project");
+// 		}
+
+// 		const requestingUser = await User.findById(req.user._id);
+
+// 		if (getRole(requestingUser, project) !== "Team Leader")
+// 			return res.status(400).send("Permission denied.");
+
+// 		userToAdd.projects.push({ _id: project._id });
+// 		project.users.push({
+// 			userId: userToAdd._id,
+// 			name: userToAdd.firstName + " " + userToAdd.lastName,
+// 			username: userToAdd.username,
+// 			role: req.body.role,
+// 		});
+
+// 		userToAdd.save();
+// 		project.save();
+
+// 		res.status(201).json({
+// 			message: "Successfully added user to project",
+// 			// id: project._id,
+// 		});
+// 	} catch (error) {
+// 		res.json({ message: error });
+// 	}
+// });
 
 // Create project
 router.post("/add", verifyToken, async (req, res) => {
@@ -161,19 +193,19 @@ router.patch("/:projectId/:taskId", verifyToken, async (req, res) => {
 });
 
 // Update project
-router.patch("/:projectId", verifyToken, async (req, res) => {
-	try {
-		const updatedProject = await Project.updateOne(
-			{
-				_id: req.params.projectId,
-			},
-			{ $set: { title: req.body.title } }
-		);
-		res.json({ updatedProject });
-	} catch (error) {
-		res.json({ error });
-	}
-});
+// router.patch("/:projectId", verifyToken, async (req, res) => {
+// 	try {
+// 		const updatedProject = await Project.updateOne(
+// 			{
+// 				_id: req.params.projectId,
+// 			},
+// 			{ $set: { title: req.body.title } }
+// 		);
+// 		res.json({ updatedProject });
+// 	} catch (error) {
+// 		res.json({ error });
+// 	}
+// });
 
 // Add task to project with id
 router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
@@ -186,6 +218,8 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 
 		let assignees = [];
 
+		console.log(req.body.assignees);
+
 		// for each designated assignee of the task
 		for (const assignee of req.body.assignees) {
 			const tempAssignee = await User.findOne({
@@ -197,28 +231,31 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 			});
 		}
 
-		let assigneesFound = 0;
-		for (const user of project.users) {
-			for (const assginee of assignees) {
-				if (String(assginee.userId) === String(user.userId)) {
-					assigneesFound += 1;
-				}
-			}
-		}
+		// let assigneesFound = 0;
+		// for (const user of project.users) {
+		// 	for (const assginee of assignees) {
+		// 		if (String(assginee.userId) === String(user.userId)) {
+		// 			assigneesFound += 1;
+		// 		}
+		// 	}
+		// }
 
-		if (assigneesFound !== assignees.length)
-			return res
-				.status(400)
-				.send("One or more members are not a member of this project.");
+		// if (assigneesFound !== assignees.length)
+		// 	return res
+		// 		.status(400)
+		// 		.send("One or more members are not a member of this project.");
 
-		req.body.assignees = assignees;
+		// req.body.assignees = assignees;
 
-		const updatedProject = await Project.updateOne(
-			{
-				_id: req.params.projectId,
-			},
-			{ $push: { tasks: [req.body] } }
-		);
+		// console.log(req.body);
+
+		// const updatedProject = await Project.updateOne(
+		// 	{
+		// 		_id: project._id,
+		// 	},
+		// 	{ $push: { tasks: [req.body] } }
+		// );
+
 		res.status(201).json({
 			message: "Successfully added task to project",
 		});

@@ -33,6 +33,14 @@ const UserSchema = mongoose.Schema({
 		type: Array,
 		default: [],
 	},
+	// invitations: [
+	// 	{
+	// 		title: { type: String, required: true },
+	// 		role: { type: String, required: true },
+	// 		from: { type: String, required: true },
+	// 		projectId: { type: mongoose.SchemaTypes.ObjectId, required: true },
+	// 	},
+	// ],
 	date: {
 		type: Date,
 		default: Date.now,

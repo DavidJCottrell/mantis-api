@@ -7,14 +7,25 @@ const registerValidation = (data) => {
 		email: Joi.string().min(6).required().email(),
 		password: Joi.string().min(6).required(),
 		projects: Joi.array(),
+		invitations: Joi.array(),
 	});
 	return schema.validate(data);
 };
 
-const loginValidation = (data) => {
+// const loginValidation = (data) => {
+// 	const schema = Joi.object({
+// 		email: Joi.string().min(6).required().email(),
+// 		password: Joi.string().min(6).required(),
+// 	});
+// 	return schema.validate(data);
+// };
+
+const createInviteValidation = (data) => {
 	const schema = Joi.object({
-		email: Joi.string().min(6).required().email(),
-		password: Joi.string().min(6).required(),
+		inviter: Joi.string().required(),
+		projectTitle: Joi.string().required(),
+		projectId: Joi.string().required(),
+		role: Joi.string().required(),
 	});
 	return schema.validate(data);
 };
@@ -65,4 +76,5 @@ const createTaskValidation = (data) => {
 module.exports.createProjectValidation = createProjectValidation;
 module.exports.createTaskValidation = createTaskValidation;
 module.exports.registerValidation = registerValidation;
-module.exports.loginValidation = loginValidation;
+// module.exports.loginValidation = loginValidation;
+module.exports.createInviteValidation = createInviteValidation;
