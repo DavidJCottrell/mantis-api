@@ -22,7 +22,39 @@ router.delete("/delete/:invitationId", verifyToken, async (req, res) => {
 	}
 });
 
-// Accept an invitation
+// Accept an invitation (adds user to project)
+router.post("/accept", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.body.projectId);
+		const userToAdd = await User.findById(req.body.userId);
+
+		if (userToAdd === null)
+			return res.status(400).send("User does not exist");
+		for (existingUser of project.users) {
+			if (String(userToAdd._id) === String(existingUser.userId))
+				return res
+					.status(400)
+					.send("This user is already a member of this project");
+		}
+
+		userToAdd.projects.push({ projectId: project._id });
+		project.users.push({
+			userId: userToAdd._id,
+			name: userToAdd.firstName + " " + userToAdd.lastName,
+			username: userToAdd.username,
+			role: req.body.role,
+		});
+
+		userToAdd.save();
+		project.save();
+
+		res.status(201).json({
+			message: "Successfully added user to project",
+		});
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
 
 // Create new invitation to project
 router.post("/sendinvite/:username", verifyToken, async (req, res) => {

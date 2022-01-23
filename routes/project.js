@@ -9,40 +9,6 @@ const {
 	createInviteValidation,
 } = require("../validation.js");
 
-// Add a user to project
-router.post("/adduser", verifyToken, async (req, res) => {
-	try {
-		const project = await Project.findById(req.body.projectId);
-		const userToAdd = await User.findById(req.body.userId);
-
-		if (userToAdd === null)
-			return res.status(400).send("User does not exist");
-		for (existingUser of project.users) {
-			if (String(userToAdd._id) === String(existingUser.userId))
-				return res
-					.status(400)
-					.send("This user is already a member of this project");
-		}
-
-		userToAdd.projects.push({ projectId: project._id });
-		project.users.push({
-			userId: userToAdd._id,
-			name: userToAdd.firstName + " " + userToAdd.lastName,
-			username: userToAdd.username,
-			role: req.body.role,
-		});
-
-		userToAdd.save();
-		project.save();
-
-		res.status(201).json({
-			message: "Successfully added user to project",
-		});
-	} catch (error) {
-		res.json({ message: error });
-	}
-});
-
 // Create project
 router.post("/add", verifyToken, async (req, res) => {
 	const user = await User.findById(req.user._id);
@@ -112,7 +78,8 @@ router.delete("/:projectId", verifyToken, async (req, res) => {
 			_id: req.params.projectId,
 		});
 
-		var removedProjIdList = user.projects.filter((projID) => {
+		// Change to use mongoose filter/update func <---------------------
+		let removedProjIdList = user.projects.filter((projID) => {
 			if (String(projID._id) !== String(req.params.projectId))
 				return projID._id;
 		});
