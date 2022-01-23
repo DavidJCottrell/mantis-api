@@ -110,34 +110,38 @@ router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 });
 
 // Remove task
-router.patch("/:projectId/:taskId", verifyToken, async (req, res) => {
-	try {
-		const project = await Project.findById(req.params.projectId);
+router.patch(
+	"/removetask/:projectId/:taskId",
+	verifyToken,
+	async (req, res) => {
+		try {
+			const project = await Project.findById(req.params.projectId);
 
-		const requestingUser = await User.findById(req.user._id);
-		if (getRole(requestingUser, project) !== "Team Leader")
-			return res.status(400).send("Permission denied.");
+			const requestingUser = await User.findById(req.user._id);
+			if (getRole(requestingUser, project) !== "Team Leader")
+				return res.status(400).send("Permission denied.");
 
-		let tasks = [];
-		for (const task of project.tasks) {
-			if (String(task._id) !== String(req.params.taskId)) {
-				tasks.push(task);
+			let tasks = [];
+			for (const task of project.tasks) {
+				if (String(task._id) !== String(req.params.taskId)) {
+					tasks.push(task);
+				}
 			}
-		}
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: tasks } }
-		);
+			await Project.updateOne(
+				{
+					_id: project._id,
+				},
+				{ $set: { tasks: tasks } }
+			);
 
-		res.status(201).json({
-			message: "Successfully deleted task",
-		});
-	} catch (error) {
-		res.json({ error });
+			res.status(201).json({
+				message: "Successfully deleted task",
+			});
+		} catch (error) {
+			res.json({ error });
+		}
 	}
-});
+);
 
 // Remove user from project
 router.patch(
@@ -173,34 +177,16 @@ router.patch(
 	}
 );
 
-// Update project
-// router.patch("/:projectId", verifyToken, async (req, res) => {
-// 	try {
-// 		const updatedProject = await Project.updateOne(
-// 			{
-// 				_id: req.params.projectId,
-// 			},
-// 			{ $set: { title: req.body.title } }
-// 		);
-// 		res.json({ updatedProject });
-// 	} catch (error) {
-// 		res.json({ error });
-// 	}
-// });
-
 // Add task to project with id
 router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 	try {
 		// Validate
 		const { error } = createTaskValidation(req.body);
 		if (error) return res.status(400).send(error.details[0].message);
-
 		const project = await Project.findById(req.params.projectId);
 
 		let assignees = [];
-
 		console.log(req.body.assignees);
-
 		// for each designated assignee of the task
 		for (const assignee of req.body.assignees) {
 			const tempAssignee = await User.findOne({
@@ -212,31 +198,28 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 			});
 		}
 
-		// let assigneesFound = 0;
-		// for (const user of project.users) {
-		// 	for (const assginee of assignees) {
-		// 		if (String(assginee.userId) === String(user.userId)) {
-		// 			assigneesFound += 1;
-		// 		}
-		// 	}
-		// }
+		let assigneesFound = 0;
+		for (const user of project.users) {
+			for (const assginee of assignees) {
+				if (String(assginee.userId) === String(user.userId)) {
+					assigneesFound += 1;
+				}
+			}
+		}
 
-		// if (assigneesFound !== assignees.length)
-		// 	return res
-		// 		.status(400)
-		// 		.send("One or more members are not a member of this project.");
+		if (assigneesFound !== assignees.length)
+			return res
+				.status(400)
+				.send("One or more members are not a member of this project.");
 
-		// req.body.assignees = assignees;
+		req.body.assignees = assignees;
 
-		// console.log(req.body);
-
-		// const updatedProject = await Project.updateOne(
-		// 	{
-		// 		_id: project._id,
-		// 	},
-		// 	{ $push: { tasks: [req.body] } }
-		// );
-
+		const updatedProject = await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $push: { tasks: [req.body] } }
+		);
 		res.status(201).json({
 			message: "Successfully added task to project",
 		});
