@@ -80,10 +80,27 @@ router.post("/sendinvite/:username", verifyToken, async (req, res) => {
 		if (getRole(requestingUser, project) !== "Team Leader")
 			return res.status(400).send("Permission denied.");
 
+		// Check user doesnt already exist in project
+		for (existingUser of project.users) {
+			if (String(invitedUser._id) === String(existingUser.userId))
+				return res
+					.status(400)
+					.send("This user is already a member of this project");
+		}
+
+		if (
+			await Invitation.findOne({
+				"invitee.userId": invitedUser._id,
+			})
+		) {
+			return res.status(400).send("This user has already been invited");
+		}
+
 		// Create object for invited user's details
 		const invitee = {
 			userId: invitedUser._id,
 			name: invitedUser.firstName + " " + invitedUser.lastName,
+			username: invitedUser.username,
 		};
 
 		// Add to the invitation

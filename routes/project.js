@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../models/Project");
 const User = require("../models/User");
+const Invitation = require("../models/Invitation");
 const { verifyToken, getRole } = require("./auth.js");
 const {
 	createProjectValidation,
@@ -96,7 +97,7 @@ router.delete("/:projectId", verifyToken, async (req, res) => {
 router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 	try {
 		const invitations = await Invitation.find({
-			"project.projectId": req.params.projectId,
+			"project.projectId": String(req.params.projectId),
 		});
 		res.json({
 			invitations,

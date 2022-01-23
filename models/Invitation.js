@@ -11,6 +11,11 @@ const InvitationSchema = mongoose.Schema({
 			maxlength: 255,
 			required: true,
 		},
+		username: {
+			type: String,
+			maxlength: 255,
+			required: true,
+		},
 	},
 	inviter: {
 		userId: {
