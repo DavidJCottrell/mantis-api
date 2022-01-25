@@ -145,7 +145,7 @@ router.patch(
 
 // Remove user from project
 router.patch(
-	"/removeuser/:userId/:projectId",
+	"/removeuser/:projectId/:userId",
 	verifyToken,
 	async (req, res) => {
 		try {
@@ -183,10 +183,11 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		// Validate
 		const { error } = createTaskValidation(req.body);
 		if (error) return res.status(400).send(error.details[0].message);
+
 		const project = await Project.findById(req.params.projectId);
 
 		let assignees = [];
-		console.log(req.body.assignees);
+
 		// for each designated assignee of the task
 		for (const assignee of req.body.assignees) {
 			const tempAssignee = await User.findOne({
@@ -202,6 +203,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		for (const user of project.users) {
 			for (const assginee of assignees) {
 				if (String(assginee.userId) === String(user.userId)) {
+					assignees[0]["projectRole"] = user.role;
 					assigneesFound += 1;
 				}
 			}
@@ -212,6 +214,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 				.status(400)
 				.send("One or more members are not a member of this project.");
 
+		console.log(assignees);
 		req.body.assignees = assignees;
 
 		const updatedProject = await Project.updateOne(

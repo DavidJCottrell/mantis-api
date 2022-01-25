@@ -44,9 +44,7 @@ router.get("/invitations", verifyToken, async (req, res) => {
 		const invitations = await Invitation.find({
 			"invitee.userId": req.user._id,
 		});
-		res.json({
-			invitations,
-		});
+		res.json(invitations);
 	} catch (error) {
 		res.json({
 			message: error,
@@ -55,7 +53,7 @@ router.get("/invitations", verifyToken, async (req, res) => {
 });
 
 // Returns all the tasks allocated to a specific user (based on their token)
-router.get("/usertasks", verifyToken, async (req, res) => {
+router.get("/tasks", verifyToken, async (req, res) => {
 	try {
 		// Get all project IDs of projects that user is a member of
 		const { projects } = await User.findById(req.user._id);

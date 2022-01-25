@@ -57,7 +57,7 @@ router.post("/accept", verifyToken, async (req, res) => {
 });
 
 // Create new invitation to project
-router.post("/sendinvite/:username", verifyToken, async (req, res) => {
+router.post("/addinvitation/:username", verifyToken, async (req, res) => {
 	try {
 		// Get the full details for the invited user
 		const invitedUser = await User.findOne({
