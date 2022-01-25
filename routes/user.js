@@ -32,9 +32,7 @@ router.get("/projects", verifyToken, async (req, res) => {
 
 		res.status(200).json(projectsData);
 	} catch (error) {
-		res.json({
-			message: error,
-		});
+		res.status(400).json(error);
 	}
 });
 
@@ -157,10 +155,7 @@ router.post("/login", async (req, res) => {
 	if (!user) return res.status(400).send("Email does not exist"); // Deploy replace with: Email or password is incorrect
 
 	// Check if password is correct
-	const validPassword = await bcrypt.compare(
-		req.body.password,
-		user.password
-	);
+	const validPassword = await bcrypt.compare(req.body.password, user.password);
 	if (!validPassword) return res.status(400).send("Password is incorrect"); // Deploy replace with: Email or password is incorrect
 
 	// Create jwt

@@ -74,20 +74,23 @@ router.get("/:projectId", verifyToken, async (req, res) => {
 // Delete project
 router.delete("/:projectId", verifyToken, async (req, res) => {
 	try {
-		const user = await User.findById(req.user._id);
-		const removedProject = await Project.remove({
-			_id: req.params.projectId,
+		const project = await Project.findById(req.params.projectId);
+
+		// Remove project from each member's "projects" list
+		for (const user of project.users) {
+			await User.updateOne(
+				{ _id: user.userId },
+				{ $pull: { projects: { projectId: project._id } } },
+				{ safe: true, multi: true }
+			);
+		}
+
+		// Delete project
+		await Project.remove({
+			_id: project._id,
 		});
 
-		// Change to use mongoose filter/update func <---------------------
-		let removedProjIdList = user.projects.filter((projID) => {
-			if (String(projID._id) !== String(req.params.projectId))
-				return projID._id;
-		});
-		user.projects = removedProjIdList;
-		user.save();
-
-		res.json({ removedProject });
+		res.status(201).json({ message: "Successfully removed project" });
 	} catch (error) {
 		res.json({ error });
 	}
@@ -110,72 +113,64 @@ router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 });
 
 // Remove task
-router.patch(
-	"/removetask/:projectId/:taskId",
-	verifyToken,
-	async (req, res) => {
-		try {
-			const project = await Project.findById(req.params.projectId);
+router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
 
-			const requestingUser = await User.findById(req.user._id);
-			if (getRole(requestingUser, project) !== "Team Leader")
-				return res.status(400).send("Permission denied.");
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
 
-			let tasks = [];
-			for (const task of project.tasks) {
-				if (String(task._id) !== String(req.params.taskId)) {
-					tasks.push(task);
-				}
+		let tasks = [];
+		for (const task of project.tasks) {
+			if (String(task._id) !== String(req.params.taskId)) {
+				tasks.push(task);
 			}
-			await Project.updateOne(
-				{
-					_id: project._id,
-				},
-				{ $set: { tasks: tasks } }
-			);
-
-			res.status(201).json({
-				message: "Successfully deleted task",
-			});
-		} catch (error) {
-			res.json({ error });
 		}
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { tasks: tasks } }
+		);
+
+		res.status(201).json({
+			message: "Successfully deleted task",
+		});
+	} catch (error) {
+		res.json({ error });
 	}
-);
+});
 
 // Remove user from project
-router.patch(
-	"/removeuser/:projectId/:userId",
-	verifyToken,
-	async (req, res) => {
-		try {
-			const project = await Project.findById(req.params.projectId);
-			const user = await User.findById(req.params.userId);
+router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const user = await User.findById(req.params.userId);
 
-			const requestingUser = await User.findById(req.user._id);
-			if (getRole(requestingUser, project) !== "Team Leader")
-				return res.status(400).send("Permission denied.");
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
 
-			await Project.updateOne(
-				{ _id: project._id },
-				{ $pull: { users: { userId: user._id } } },
-				{ safe: true, multi: true }
-			);
+		await Project.updateOne(
+			{ _id: project._id },
+			{ $pull: { users: { userId: user._id } } },
+			{ safe: true, multi: true }
+		);
 
-			await User.updateOne(
-				{ _id: user._id },
-				{ $pull: { projects: { projectId: project._id } } },
-				{ safe: true, multi: true }
-			);
+		await User.updateOne(
+			{ _id: user._id },
+			{ $pull: { projects: { projectId: project._id } } },
+			{ safe: true, multi: true }
+		);
 
-			res.status(201).json({
-				message: "Successfully removed user",
-			});
-		} catch (error) {
-			res.json({ error });
-		}
+		res.status(201).json({
+			message: "Successfully removed user",
+		});
+	} catch (error) {
+		res.json({ error });
 	}
-);
+});
 
 // Add task to project with id
 router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
