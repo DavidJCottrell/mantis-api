@@ -52,7 +52,7 @@ router.post("/add", verifyToken, async (req, res) => {
 });
 
 // Returns a specific project
-router.get("/:projectId", verifyToken, async (req, res) => {
+router.get("/getproject/:projectId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
 
@@ -71,8 +71,25 @@ router.get("/:projectId", verifyToken, async (req, res) => {
 	}
 });
 
+// Get the user's role, based on their userId and projectId
+router.get("/getrole/:projectId/:userId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+
+		for (const projectUser of project.users) {
+			if (String(req.params.userId) === String(projectUser.userId)) {
+				return res.json({ role: projectUser.role });
+			}
+		}
+
+		res.status(400).json({ message: "User is not a memeber of this project." });
+	} catch (error) {
+		res.status(400).json({ message: "No project with that ID could be found." });
+	}
+});
+
 // Delete project
-router.delete("/:projectId", verifyToken, async (req, res) => {
+router.delete("/delete/:projectId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
 
@@ -198,7 +215,6 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		for (const user of project.users) {
 			for (const assginee of assignees) {
 				if (String(assginee.userId) === String(user.userId)) {
-					assignees[0]["projectRole"] = user.role;
 					assigneesFound += 1;
 				}
 			}

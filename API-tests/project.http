@@ -94,7 +94,6 @@ content-type: application/json
 
 ####
 # Remove user from project
-
 PATCH http://localhost:9000/project/removeuser/61ec93355c2f813545910093/61ec93165c2f813545910087
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDI5NDQzOTZ9.5uscdz5kRv1Ecru0EtfqiJHBwD17PN-kjhYf9EAtElU
 
@@ -103,3 +102,9 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM
 
 PATCH http://localhost:9000/project/adduser/61edbe6eccbe2858cf2e1680
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDI5NzY1Nzh9.DadMCWwVY_eevKKSRAFpBZP2xLr1AbTY8plmxuGVZ1I
+
+
+####
+# Get role
+GET http://localhost:9000/project/getrole/61f02319386b5447e5fc2583/61ec92e95c2f81354591007b
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDMxMjc4Njd9.1VsyV3LSTHpXi7UbmmGYksqRKjYmPcf1OZVYx8L8VAo

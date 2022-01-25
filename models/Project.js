@@ -47,11 +47,6 @@ const ProjectSchema = mongoose.Schema({
 						maxlength: 255,
 						required: true,
 					},
-					projectRole: {
-						type: String,
-						maxlength: 255,
-						required: true,
-					},
 					_id: false,
 				},
 			],

@@ -68,6 +68,7 @@ router.get("/tasks", verifyToken, async (req, res) => {
 						assignedTasks.push({
 							task: task,
 							parentProjectTitle: project.title,
+							parentProjectId: project._id,
 						});
 					}
 				}
