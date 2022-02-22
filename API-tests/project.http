@@ -90,6 +90,18 @@ content-type: application/json
     }
 }
 
+###
+# Add requirement to project
+PATCH http://localhost:9000/project/addRequirement/61f06041bf0d1b6c9be95f00
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDQ3ODg4OTd9.x-T9SSWrfEfWK4u1YXq6nOEzP7pQSD36PQv2JCxmel0
+content-type: application/json
+
+{
+    "type": "Ubiquitous",
+    "systemName": "Car",
+    "systemResponses": ["unlock", "drive", "reverse"],
+    "fullText": "The Car shall unlock and drive and reverse"
+}
 
 
 ####

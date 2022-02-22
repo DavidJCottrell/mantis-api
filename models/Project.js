@@ -85,6 +85,28 @@ const ProjectSchema = mongoose.Schema({
 			],
 		},
 	],
+	requirements: [
+		{
+			type: {
+				type: String,
+				required: true,
+			},
+			index: {
+				type: String,
+				required: true,
+			},
+			systemName: {
+				type: String,
+				required: true,
+			},
+			preconditions: [{ type: String, required: true }],
+			systemResponses: [{ type: String, required: true }],
+			fullText: { type: String },
+			feature: { type: String },
+			unwantedFeature: { type: String },
+			order: [{ type: String }],
+		},
+	],
 	description: {
 		type: String,
 	},

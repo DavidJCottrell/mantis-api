@@ -78,8 +78,25 @@ const createTaskValidation = (data) => {
 	return schema.validate(data);
 };
 
+const addRequirementValidation = (data) => {
+	const schema = Joi.object({
+		type: Joi.string().required(),
+		index: Joi.string().required(),
+		systemName: Joi.string().required(),
+		preconditions: Joi.array().items(Joi.string()),
+		systemResponses: Joi.array().items(Joi.string().min(1)),
+		fullText: Joi.string().required(),
+		feature: Joi.string().allow(null, ""),
+		trigger: Joi.string().allow(null, ""),
+		unwantedTrigger: Joi.string().allow(null, ""),
+		order: Joi.array().items(Joi.string()),
+	});
+	return schema.validate(data);
+};
+
 // module.exports.loginValidation = loginValidation;
 module.exports.createProjectValidation = createProjectValidation;
 module.exports.createTaskValidation = createTaskValidation;
 module.exports.registerValidation = registerValidation;
 module.exports.createInviteValidation = createInviteValidation;
+module.exports.addRequirementValidation = addRequirementValidation;

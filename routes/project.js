@@ -8,6 +8,7 @@ const {
 	createProjectValidation,
 	createTaskValidation,
 	createInviteValidation,
+	addRequirementValidation,
 } = require("../validation.js");
 
 // Create project
@@ -129,6 +130,44 @@ router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 	}
 });
 
+// Get all requirememts for a project
+router.get("/requirements/:projectId", verifyToken, async (req, res) => {
+	try {
+		const { requirements } = await Project.findById(req.params.projectId);
+		res.json({ requirements });
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
+// Remove requirement from project
+router.patch(
+	"/removerequirement/:projectId/:requirementIndex",
+	verifyToken,
+	async (req, res) => {
+		try {
+			const project = await Project.findById(req.params.projectId);
+			const index = req.params.requirementIndex;
+
+			let requirements = [];
+			for (const req of project.requirements)
+				if (req.index !== index) requirements.push(req);
+
+			await Project.updateOne(
+				{
+					_id: project._id,
+				},
+				{ $set: { requirements: requirements } }
+			);
+			res.status(201).json({
+				message: "Successfully deleted requirement",
+			});
+		} catch (error) {
+			res.json({ message: error });
+		}
+	}
+);
+
 // Remove task
 router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
@@ -139,11 +178,9 @@ router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => 
 			return res.status(400).send("Permission denied.");
 
 		let tasks = [];
-		for (const task of project.tasks) {
-			if (String(task._id) !== String(req.params.taskId)) {
-				tasks.push(task);
-			}
-		}
+		for (const task of project.tasks)
+			if (String(task._id) !== String(req.params.taskId)) tasks.push(task);
+
 		await Project.updateOne(
 			{
 				_id: project._id,
@@ -236,6 +273,30 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		);
 		res.status(201).json({
 			message: "Successfully added task to project",
+		});
+	} catch (error) {
+		console.log(error);
+		res.json({ error });
+	}
+});
+
+// Add requirement to project with id
+router.patch("/addrequirement/:projectId", verifyToken, async (req, res) => {
+	try {
+		// Validate
+		const { error } = addRequirementValidation(req.body);
+		if (error) return res.status(400).send(error.details[0].message);
+
+		const project = await Project.findById(req.params.projectId);
+
+		const updatedProject = await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $push: { requirements: [req.body] } }
+		);
+		res.status(201).json({
+			message: "Successfully added requirement to project",
 		});
 	} catch (error) {
 		console.log(error);
