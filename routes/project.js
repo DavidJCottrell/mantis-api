@@ -181,7 +181,7 @@ router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, asy
 
 		const new_requirement = req.body;
 
-		console.log(new_requirement);
+		console.log(req.params);
 
 		let requirements = [];
 		for (let req of project.requirements) {
