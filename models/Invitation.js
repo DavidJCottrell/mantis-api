@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Add Username to inviter
 const InvitationSchema = mongoose.Schema({
 	invitee: {
 		userId: {

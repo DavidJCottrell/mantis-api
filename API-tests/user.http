@@ -1,6 +1,9 @@
 # Get all project related to the user whos token is passed
 GET http://localhost:9000/user/projects
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTdlZWQ0NThkMzgxYjBhNjZjOGY5MWIiLCJpYXQiOjE2NDI1MzE5Mjh9.-VOqiZnNlXIeZUF6eE_1AwJzR4DVavYXhwXbKK8v7qM
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDYwODc0Nzl9.QCCixBrjsgC98-fowV5y3TkFQkVKPCk6kuuSxsjcBms
+
+
+
 
 ###
 # Add project to user with provided token
@@ -52,7 +55,7 @@ content-type: application/json
 
 ###
 # David Cottrell login
-POST http://localhost:9000/user/login
+POST http://34.125.208.243:80/user/login
 content-type: application/json
 
 {

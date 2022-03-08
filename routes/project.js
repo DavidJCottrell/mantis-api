@@ -141,32 +141,70 @@ router.get("/requirements/:projectId", verifyToken, async (req, res) => {
 });
 
 // Remove requirement from project
-router.patch(
-	"/removerequirement/:projectId/:requirementIndex",
-	verifyToken,
-	async (req, res) => {
-		try {
-			const project = await Project.findById(req.params.projectId);
-			const index = req.params.requirementIndex;
+router.patch("/removerequirement/:projectId/:requirementIndex", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const index = req.params.requirementIndex;
 
-			let requirements = [];
-			for (const req of project.requirements)
-				if (req.index !== index) requirements.push(req);
+		let requirement;
+		for (const req of project.requirements) if (req.index === index) requirement = req;
 
-			await Project.updateOne(
-				{
-					_id: project._id,
-				},
-				{ $set: { requirements: requirements } }
-			);
-			res.status(201).json({
-				message: "Successfully deleted requirement",
-			});
-		} catch (error) {
-			res.json({ message: error });
+		let requirements = [];
+		for (const req of project.requirements)
+			if (req.index !== requirement.index) requirements.push(req);
+
+		for (let i = 0; i < requirements.length; i++) {
+			let indexNum = parseInt(requirements[i].index.match(/\d/g));
+			if (indexNum > parseInt(requirement.index.match(/\d/g)))
+				requirements[i].index = "REQ-" + String(indexNum - 1);
 		}
+
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { requirements: requirements } }
+		);
+		res.status(201).json({
+			message: "Successfully deleted requirement",
+		});
+	} catch (error) {
+		res.json({ message: error });
 	}
-);
+});
+
+// Update requirement
+router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const index = req.params.requirementIndex;
+
+		const new_requirement = req.body;
+
+		console.log(new_requirement);
+
+		let requirements = [];
+		for (let req of project.requirements) {
+			if (req.index === index) {
+				requirements.push(new_requirement);
+			} else {
+				requirements.push(req);
+			}
+		}
+
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { requirements: requirements } }
+		);
+		res.status(201).json({
+			message: "Successfully deleted requirement",
+		});
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
 
 // Remove task
 router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => {
@@ -258,9 +296,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		}
 
 		if (assigneesFound !== assignees.length)
-			return res
-				.status(400)
-				.send("One or more members are not a member of this project.");
+			return res.status(400).send("One or more members are not a member of this project.");
 
 		console.log(assignees);
 		req.body.assignees = assignees;
