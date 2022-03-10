@@ -72,17 +72,11 @@ const ProjectSchema = mongoose.Schema({
 					taggedUsers: [mongoose.Schema.Types.ObjectId],
 				},
 			],
-			subtasks: [
-				{
-					columnName: { type: String, required: true },
-					tasks: [
-						{
-							title: { type: String },
-							description: { type: String },
-						},
-					],
-				},
-			],
+			subtasks: {
+				toDo: [{ type: String }],
+				inProgress: [{ type: String }],
+				complete: [{ type: String }],
+			},
 		},
 	],
 	requirements: [

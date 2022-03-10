@@ -179,14 +179,12 @@ router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, asy
 		const project = await Project.findById(req.params.projectId);
 		const index = req.params.requirementIndex;
 
-		const new_requirement = req.body;
-
-		console.log(req.params);
+		const newRequirement = req.body;
 
 		let requirements = [];
 		for (let req of project.requirements) {
 			if (req.index === index) {
-				requirements.push(new_requirement);
+				requirements.push(newRequirement);
 			} else {
 				requirements.push(req);
 			}
@@ -197,6 +195,72 @@ router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, asy
 				_id: project._id,
 			},
 			{ $set: { requirements: requirements } }
+		);
+		res.status(201).json({
+			message: "Successfully deleted requirement",
+		});
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
+// Add subtasks
+// Needs validation
+router.patch("/addsubtask/:projectId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const subTask = req.body;
+
+		console.log(subTask);
+
+		// await Project.updateOne(
+		// 	{
+		// 		_id: project._id,
+		// 	},
+		// 	{ $set: { requirements: requirements } }
+		// );
+		// res.status(201).json({
+		// 	message: "Successfully deleted requirement",
+		// });
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
+// Get all the subtasks for a given project
+router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const taskId = req.params.taskId;
+
+		for (const task of project.tasks)
+			if (String(task._id) === String(taskId)) return res.json({ subtasks: task.subtasks });
+
+		// Send error if not
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
+// Update subtasks
+// Needs validation
+router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const taskId = req.params.taskId;
+		const subTasks = req.body;
+
+		let tasks = project.tasks;
+
+		for (let i = 0; i < tasks.length; i++) {
+			if (String(project.tasks[i]._id) === String(taskId)) tasks[i].subtasks = subTasks;
+		}
+
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { tasks: tasks } }
 		);
 		res.status(201).json({
 			message: "Successfully deleted requirement",
