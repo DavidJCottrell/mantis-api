@@ -362,7 +362,6 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		if (assigneesFound !== assignees.length)
 			return res.status(400).send("One or more members are not a member of this project.");
 
-		console.log(assignees);
 		req.body.assignees = assignees;
 
 		const updatedProject = await Project.updateOne(

@@ -13,7 +13,7 @@ var cors = require("cors");
 app.use(
 	express.json(),
 	cors({
-		origin: ["http://localhost:3000", process.env.BASE_URL + ":3000"],
+		origin: ["http://localhost:3000", "http://localhost:3000"],
 		default: "http://localhost:3000",
 	})
 );
@@ -33,8 +33,8 @@ mongoose
 		console.log("Error connecting to database: ", e);
 	});
 
-app.listen(process.env.PORT, () => {
-	console.log("Server is running on port " + process.env.PORT);
+app.listen("9000", () => {
+	console.log("Server is running on port " + "9000");
 });
 
 // Clear console after nodemon reload
