@@ -204,37 +204,17 @@ router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, asy
 	}
 });
 
-// Add subtasks
-// Needs validation
-router.patch("/addsubtask/:projectId", verifyToken, async (req, res) => {
-	try {
-		const project = await Project.findById(req.params.projectId);
-		const subTask = req.body;
-
-		console.log(subTask);
-
-		// await Project.updateOne(
-		// 	{
-		// 		_id: project._id,
-		// 	},
-		// 	{ $set: { requirements: requirements } }
-		// );
-		// res.status(201).json({
-		// 	message: "Successfully deleted requirement",
-		// });
-	} catch (error) {
-		res.json({ message: error });
-	}
-});
-
 // Get all the subtasks for a given project
 router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
 		const taskId = req.params.taskId;
 
-		for (const task of project.tasks)
-			if (String(task._id) === String(taskId)) return res.json({ subtasks: task.subtasks });
+		for (const task of project.tasks) {
+			if (String(task._id) === String(taskId)) {
+				return res.json({ subtasks: task.subtasks });
+			}
+		}
 
 		// Send error if not
 	} catch (error) {
@@ -242,7 +222,7 @@ router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 	}
 });
 
-// Update subtasks
+// Update subtasks (add/edit/remove)
 // Needs validation
 router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
@@ -252,9 +232,8 @@ router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res)
 
 		let tasks = project.tasks;
 
-		for (let i = 0; i < tasks.length; i++) {
+		for (let i = 0; i < tasks.length; i++)
 			if (String(project.tasks[i]._id) === String(taskId)) tasks[i].subtasks = subTasks;
-		}
 
 		await Project.updateOne(
 			{
