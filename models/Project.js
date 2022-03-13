@@ -68,6 +68,8 @@ const ProjectSchema = mongoose.Schema({
 			dateDue: { type: String },
 			comments: [
 				{
+					authorName: { type: String, required: true },
+					authorId: { type: mongoose.SchemaTypes.ObjectId, required: true },
 					content: { type: String, required: true },
 					taggedUsers: [mongoose.Schema.Types.ObjectId],
 				},

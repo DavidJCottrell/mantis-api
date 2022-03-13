@@ -4,7 +4,9 @@ const app = express();
 const mongoose = require("mongoose");
 
 //Import routes
-const projectRoute = require("./routes/project");
+const projectRoute = require("./routes/projectRoutes/project");
+const taskRoute = require("./routes/projectRoutes/task");
+const requirementRoute = require("./routes/projectRoutes/requirement");
 const userRoute = require("./routes/user");
 const invitationRoute = require("./routes/invitation");
 
@@ -19,7 +21,11 @@ app.use(
 );
 
 app.use("/project", projectRoute);
+app.use("/project/tasks", taskRoute);
+app.use("/project/requirements", requirementRoute);
+
 app.use("/user", userRoute);
+
 app.use("/invitation", invitationRoute);
 
 //Connect to DB

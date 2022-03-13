@@ -28,13 +28,10 @@ router.post("/accept", verifyToken, async (req, res) => {
 		const project = await Project.findById(req.body.projectId);
 		const userToAdd = await User.findById(req.body.userId);
 
-		if (userToAdd === null)
-			return res.status(400).send("User does not exist");
+		if (userToAdd === null) return res.status(400).send("User does not exist");
 		for (existingUser of project.users) {
 			if (String(userToAdd._id) === String(existingUser.userId))
-				return res
-					.status(400)
-					.send("This user is already a member of this project");
+				return res.status(400).send("This user is already a member of this project");
 		}
 
 		userToAdd.projects.push({ projectId: project._id });
@@ -83,9 +80,7 @@ router.post("/addinvitation/:username", verifyToken, async (req, res) => {
 		// Check user doesnt already exist in project
 		for (existingUser of project.users) {
 			if (String(invitedUser._id) === String(existingUser.userId))
-				return res
-					.status(400)
-					.send("This user is already a member of this project");
+				return res.status(400).send("This user is already a member of this project");
 		}
 
 		if (
