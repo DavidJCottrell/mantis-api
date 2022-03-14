@@ -160,6 +160,34 @@ router.patch("/updatestatus/:projectId/:taskId", verifyToken, async (req, res) =
 	}
 });
 
+// Update resolution
+router.patch("/updateresolution/:projectId/:taskId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		const taskId = req.params.taskId;
+		const newResolution = req.body.resolution;
+
+		let tasks = project.tasks;
+		let updatedTask;
+
+		for (let i = 0; i < tasks.length; i++)
+			if (String(tasks[i]._id) === String(taskId)) {
+				tasks[i].resolution = newResolution;
+				updatedTask = tasks[i];
+			}
+
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { tasks: tasks } }
+		);
+		res.json({ task: updatedTask });
+	} catch (error) {
+		res.json({ message: error });
+	}
+});
+
 // Get all the subtasks for a given project
 router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
@@ -178,30 +206,28 @@ router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 	}
 });
 
-// Add comment to a given task
-// Needs validation
-router.post("/comments/addcomment/:projectId/:taskId", verifyToken, async (req, res) => {
+// Update comments (add/edit/remove)
+router.patch("/comments/updatecomments/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
-		const project = await Project.findById(req.params.projectId);
+		let project = await Project.findById(req.params.projectId);
 		const taskId = req.params.taskId;
-		const comment = req.body;
+		const newComments = req.body;
 
-		let tasks = [];
-
+		// let newTasks = [];
 		for (let i = 0; i < project.tasks.length; i++) {
-			if (String(project.tasks[i]._id) === String(taskId))
-				project.tasks[i].comments.push(comment);
-			tasks.push(project.tasks[i]);
+			if (String(project.tasks[i]._id) === String(taskId)) {
+				project.tasks[i].comments = newComments;
+			}
 		}
 
 		await Project.updateOne(
 			{
 				_id: project._id,
 			},
-			{ $set: { tasks: tasks } }
+			{ $set: { tasks: project.tasks } }
 		);
 		res.status(201).json({
-			message: "Successfully added requirement to project",
+			message: "Successfully updated comments",
 		});
 	} catch (error) {
 		res.json({
