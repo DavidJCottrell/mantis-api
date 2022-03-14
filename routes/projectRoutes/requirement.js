@@ -15,6 +15,10 @@ router.patch("/addrequirement/:projectId", verifyToken, async (req, res) => {
 
 		const project = await Project.findById(req.params.projectId);
 
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
+
 		const updatedProject = await Project.updateOne(
 			{
 				_id: project._id,
@@ -35,6 +39,10 @@ router.patch("/updaterequirement/:projectId/:requirementIndex", verifyToken, asy
 	try {
 		const project = await Project.findById(req.params.projectId);
 		const index = req.params.requirementIndex;
+
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
 
 		const newRequirement = req.body;
 
@@ -66,6 +74,10 @@ router.patch("/removerequirement/:projectId/:requirementIndex", verifyToken, asy
 	try {
 		const project = await Project.findById(req.params.projectId);
 		const index = req.params.requirementIndex;
+
+		const requestingUser = await User.findById(req.user._id);
+		if (getRole(requestingUser, project) !== "Team Leader")
+			return res.status(400).send("Permission denied.");
 
 		let requirement;
 		for (const req of project.requirements) if (req.index === index) requirement = req;
