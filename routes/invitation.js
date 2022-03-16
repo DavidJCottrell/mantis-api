@@ -3,7 +3,7 @@ const router = express.Router();
 const Invitation = require("../models/Invitation");
 const Project = require("../models/Project");
 const User = require("../models/User");
-const { verifyToken, getRole } = require("./auth.js");
+const { verifyToken, isLeader } = require("./auth.js");
 const { createInviteValidation } = require("../validation.js");
 
 // Delete an invitation
@@ -72,10 +72,9 @@ router.post("/addinvitation/:username", verifyToken, async (req, res) => {
 		const { error } = createInviteValidation(req.body);
 		if (error) return res.status(400).send(error.details[0].message);
 
-		const requestingUser = await User.findById(req.user._id);
 		const project = await Project.findById(req.body.project.projectId);
-		if (getRole(requestingUser, project) !== "Team Leader")
-			return res.status(400).send("Permission denied.");
+
+		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
 
 		// Check user doesnt already exist in project
 		for (existingUser of project.users) {

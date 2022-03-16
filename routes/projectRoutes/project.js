@@ -3,7 +3,7 @@ const router = express.Router();
 const Project = require("../../models/Project");
 const User = require("../../models/User");
 const Invitation = require("../../models/Invitation");
-const { verifyToken, getRole } = require("../auth.js");
+const { verifyToken, getRole, isLeader } = require("../auth.js");
 const { createProjectValidation } = require("../../validation.js");
 
 // Create project
@@ -53,7 +53,7 @@ router.get("/getproject/:projectId", verifyToken, async (req, res) => {
 		const project = await Project.findById(req.params.projectId);
 
 		let userExists = false;
-		for (user of project.users) {
+		for (const user of project.users) {
 			if (req.user._id == user.userId) {
 				userExists = true;
 				break;
@@ -99,7 +99,7 @@ router.delete("/delete/:projectId", verifyToken, async (req, res) => {
 		}
 
 		// Delete project
-		await Project.remove({
+		await Project.deleteOne({
 			_id: project._id,
 		});
 
@@ -131,9 +131,7 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 		const project = await Project.findById(req.params.projectId);
 		const user = await User.findById(req.params.userId);
 
-		const requestingUser = await User.findById(req.user._id);
-		if (getRole(requestingUser, project) !== "Team Leader")
-			return res.status(400).send("Permission denied.");
+		if (!isLeader(user._id, project)) return res.status(400).send("Permission denied.");
 
 		await Project.updateOne(
 			{ _id: project._id },
@@ -149,6 +147,36 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 
 		res.status(201).json({
 			message: "Successfully removed user",
+		});
+	} catch (error) {
+		res.json({ error });
+	}
+});
+
+// Change team member's role
+router.patch("/updateuserrole/:projectId/:userId", verifyToken, async (req, res) => {
+	try {
+		const project = await Project.findById(req.params.projectId);
+		let userId = req.params.userId;
+		const newRole = req.body.role;
+
+		if (!isLeader(user._id, project)) return res.status(400).send("Permission denied.");
+
+		let newUsers = [];
+		for (let i = 0; i < project.users.length; i++) {
+			if (String(project.users[i].userId) === String(userId)) project.users[i].role = newRole;
+			newUsers.push(project.users[i]);
+		}
+
+		await Project.updateOne(
+			{
+				_id: project._id,
+			},
+			{ $set: { users: newUsers } }
+		);
+
+		res.status(201).json({
+			message: "Successfully changed member's role",
 		});
 	} catch (error) {
 		res.json({ error });

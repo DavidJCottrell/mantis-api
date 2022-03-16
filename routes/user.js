@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const Project = require("../models/Project");
 const Invitation = require("../models/Invitation");
-const { verifyToken, getRole } = require("./auth.js");
+const { verifyToken } = require("./auth.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
@@ -101,9 +101,7 @@ router.post("/register", async (req, res) => {
 		email: req.body.email,
 	});
 	if (emailExists)
-		return res
-			.status(400)
-			.send("A user is already registered with that email address");
+		return res.status(400).send("A user is already registered with that email address");
 
 	// Hash password
 	const salt = await bcrypt.genSalt(10);

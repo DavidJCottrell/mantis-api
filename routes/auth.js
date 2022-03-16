@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 // Checks if the supplied auth token is valid
 const verifyToken = (req, res, next) => {
@@ -17,13 +18,18 @@ const verifyToken = (req, res, next) => {
 // Get the role the user has for the specified project
 const getRole = (user, project) => {
 	for (const projectMember of project.users) {
-		if (String(user._id) === String(projectMember.userId))
-			return projectMember.role;
+		if (String(user._id) === String(projectMember.userId)) return projectMember.role;
 	}
 	return null;
 };
 
+const isLeader = async (userId, project) => {
+	const requestingUser = await User.findById(userId);
+	if (getRole(requestingUser, project) !== "Team Leader") return false;
+	else return true;
+};
+
 module.exports = {
 	verifyToken,
-	getRole,
+	isLeader,
 };

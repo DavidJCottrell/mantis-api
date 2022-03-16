@@ -2,14 +2,8 @@ const express = require("express");
 const router = express.Router();
 const Project = require("../../models/Project");
 const User = require("../../models/User");
-const Invitation = require("../../models/Invitation");
-const { verifyToken, getRole } = require("../auth.js");
-const {
-	createProjectValidation,
-	createTaskValidation,
-	createInviteValidation,
-	addRequirementValidation,
-} = require("../../validation.js");
+const { verifyToken, isLeader } = require("../auth.js");
+const { createTaskValidation } = require("../../validation.js");
 
 // Get the task with the given id
 router.get("/gettask/:projectId/:taskId", verifyToken, async (req, res) => {
@@ -35,6 +29,8 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 
 		const project = await Project.findById(req.params.projectId);
 
+		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
+
 		let assignees = [];
 
 		// for each designated assignee of the task
@@ -49,13 +45,9 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		}
 
 		let assigneesFound = 0;
-		for (const user of project.users) {
-			for (const assginee of assignees) {
-				if (String(assginee.userId) === String(user.userId)) {
-					assigneesFound += 1;
-				}
-			}
-		}
+		for (const user of project.users)
+			for (const assginee of assignees)
+				if (String(assginee.userId) === String(user.userId)) assigneesFound += 1;
 
 		if (assigneesFound !== assignees.length)
 			return res.status(400).send("One or more members are not a member of this project.");
@@ -63,9 +55,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 		req.body.assignees = assignees;
 
 		const updatedProject = await Project.updateOne(
-			{
-				_id: project._id,
-			},
+			{ _id: project._id },
 			{ $push: { tasks: [req.body] } }
 		);
 		res.status(201).json({
@@ -81,25 +71,30 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
+		const taskId = req.params.taskId;
 
-		const requestingUser = await User.findById(req.user._id);
-		if (getRole(requestingUser, project) !== "Team Leader")
-			return res.status(400).send("Permission denied.");
+		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
 
-		let tasks = [];
+		// Get the task to remove
+		let taskToRemove;
 		for (const task of project.tasks)
-			if (String(task._id) !== String(req.params.taskId)) tasks.push(task);
+			if (String(task._id) === String(taskId)) taskToRemove = task;
 
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: tasks } }
-		);
+		// Get a list of all the tasks to keep
+		let newTasks = [];
+		for (const task of project.tasks)
+			if (String(task._id) !== String(taskId)) newTasks.push(task);
 
-		res.status(201).json({
-			message: "Successfully deleted task",
-		});
+		// Calculate new task keys
+		for (let i = 0; i < newTasks.length; i++) {
+			let keyNum = parseInt(newTasks[i].taskKey.match(/\d/g));
+			if (keyNum >= parseInt(taskToRemove.taskKey.match(/\d/g)))
+				newTasks[i].taskKey = "T" + String(keyNum - 1);
+		}
+
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: newTasks } });
+
+		res.status(201).json({ message: "Successfully deleted task" });
 	} catch (error) {
 		res.json({ error });
 	}
@@ -118,15 +113,8 @@ router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res)
 		for (let i = 0; i < tasks.length; i++)
 			if (String(project.tasks[i]._id) === String(taskId)) tasks[i].subtasks = subTasks;
 
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: tasks } }
-		);
-		res.status(201).json({
-			message: "Successfully updated subtasks",
-		});
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
+		res.status(201).json({ message: "Successfully updated subtasks" });
 	} catch (error) {
 		res.json({ message: error });
 	}
@@ -142,18 +130,14 @@ router.patch("/updatestatus/:projectId/:taskId", verifyToken, async (req, res) =
 		let tasks = project.tasks;
 		let updatedTask;
 
-		for (let i = 0; i < tasks.length; i++)
+		for (let i = 0; i < tasks.length; i++) {
 			if (String(tasks[i]._id) === String(taskId)) {
 				tasks[i].status = newStatus;
 				updatedTask = tasks[i];
 			}
+		}
 
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: tasks } }
-		);
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
 		res.json({ task: updatedTask });
 	} catch (error) {
 		res.json({ message: error });
@@ -176,12 +160,7 @@ router.patch("/updateresolution/:projectId/:taskId", verifyToken, async (req, re
 				updatedTask = tasks[i];
 			}
 
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: tasks } }
-		);
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
 		res.json({ task: updatedTask });
 	} catch (error) {
 		res.json({ message: error });
@@ -194,11 +173,8 @@ router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 		const project = await Project.findById(req.params.projectId);
 		const taskId = req.params.taskId;
 
-		for (const task of project.tasks) {
-			if (String(task._id) === String(taskId)) {
-				return res.json({ subtasks: task.subtasks });
-			}
-		}
+		for (const task of project.tasks)
+			if (String(task._id) === String(taskId)) return res.json({ subtasks: task.subtasks });
 
 		// Send error if not
 	} catch (error) {
@@ -213,22 +189,12 @@ router.patch("/comments/updatecomments/:projectId/:taskId", verifyToken, async (
 		const taskId = req.params.taskId;
 		const newComments = req.body;
 
-		// let newTasks = [];
-		for (let i = 0; i < project.tasks.length; i++) {
-			if (String(project.tasks[i]._id) === String(taskId)) {
+		for (let i = 0; i < project.tasks.length; i++)
+			if (String(project.tasks[i]._id) === String(taskId))
 				project.tasks[i].comments = newComments;
-			}
-		}
 
-		await Project.updateOne(
-			{
-				_id: project._id,
-			},
-			{ $set: { tasks: project.tasks } }
-		);
-		res.status(201).json({
-			message: "Successfully updated comments",
-		});
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: project.tasks } });
+		res.status(201).json({ message: "Successfully updated comments" });
 	} catch (error) {
 		res.json({
 			message: error,
