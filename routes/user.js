@@ -44,9 +44,7 @@ router.get("/invitations", verifyToken, async (req, res) => {
 		});
 		res.json(invitations);
 	} catch (error) {
-		res.json({
-			message: error,
-		});
+		res.json({ message: error });
 	}
 });
 
@@ -129,7 +127,7 @@ router.post("/register", async (req, res) => {
 	});
 
 	try {
-		const savedUser = await user.save();
+		await user.save();
 		res.status(201).json({
 			message: "Successfully registered",
 		});
@@ -144,26 +142,27 @@ router.post("/register", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
 	// Validate
-	// const { error } = loginValidation(req.body);
-	// if (error) return res.status(400).send(error.details[0].message);
+	const { error } = loginValidation(req.body);
+	if (error) return res.status(400).send(error.details[0].message);
 
 	// Check if user exists
+	const email = req.body.email;
 	const user = await User.findOne({
-		email: req.body.email.toLowerCase(),
+		email: email.toLowerCase(),
 	});
-	if (!user) return res.status(400).send("Email does not exist"); // Deploy replace with: Email or password is incorrect
+	if (!user) return res.status(400).send("Email does not exist");
 
 	// Check if password is correct
-	const validPassword = await bcrypt.compare(req.body.password, user.password);
-	if (!validPassword) return res.status(400).send("Password is incorrect"); // Deploy replace with: Email or password is incorrect
+	const password = req.body.password;
+	const validPassword = await bcrypt.compare(password, user.password);
+	if (!validPassword) return res.status(400).send("Password is incorrect");
 
 	// Create jwt
-	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "7d" });
 	res.json({
 		token: token,
 		user: user,
 	});
-	// res.header("auth-token", token).send(token);
 });
 
 module.exports = router;

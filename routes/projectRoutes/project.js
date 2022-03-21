@@ -90,22 +90,19 @@ router.delete("/delete/:projectId", verifyToken, async (req, res) => {
 		const project = await Project.findById(req.params.projectId);
 
 		// Remove project from each member's "projects" list
-		for (const user of project.users) {
+		for (const user of project.users)
 			await User.updateOne(
 				{ _id: user.userId },
 				{ $pull: { projects: { projectId: project._id } } },
 				{ safe: true, multi: true }
 			);
-		}
 
 		// Delete project
-		await Project.deleteOne({
-			_id: project._id,
-		});
+		await Project.deleteOne({ _id: project._id });
 
 		res.status(201).json({ message: "Successfully removed project" });
 	} catch (error) {
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -115,13 +112,9 @@ router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 		const invitations = await Invitation.find({
 			"project.projectId": String(req.params.projectId),
 		});
-		res.json({
-			invitations,
-		});
+		res.json({ invitations });
 	} catch (error) {
-		res.json({
-			message: error,
-		});
+		res.json({ message: error });
 	}
 });
 

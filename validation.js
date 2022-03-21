@@ -12,13 +12,13 @@ const registerValidation = (data) => {
 	return schema.validate(data);
 };
 
-// const loginValidation = (data) => {
-// 	const schema = Joi.object({
-// 		email: Joi.string().min(6).required().email(),
-// 		password: Joi.string().min(6).required(),
-// 	});
-// 	return schema.validate(data);
-// };
+const loginValidation = (data) => {
+	const schema = Joi.object({
+		email: Joi.string().min(6).required().email(),
+		password: Joi.string().min(6).required(),
+	});
+	return schema.validate(data);
+};
 
 const createInviteValidation = (data) => {
 	const schema = Joi.object({
@@ -94,7 +94,7 @@ const addRequirementValidation = (data) => {
 	return schema.validate(data);
 };
 
-// module.exports.loginValidation = loginValidation;
+module.exports.loginValidation = loginValidation;
 module.exports.createProjectValidation = createProjectValidation;
 module.exports.createTaskValidation = createTaskValidation;
 module.exports.registerValidation = registerValidation;

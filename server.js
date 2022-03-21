@@ -42,6 +42,3 @@ mongoose
 app.listen("9000", () => {
 	console.log("Server is running on port " + "9000");
 });
-
-// Clear console after nodemon reload
-// console.clear();
