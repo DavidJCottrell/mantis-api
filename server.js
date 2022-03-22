@@ -12,6 +12,20 @@ const invitationRoute = require("./routes/invitation");
 
 var cors = require("cors");
 
+/*
+-- HTTP Status Codes --
+
+Success Codes:
+
+200: OK
+201: Resource created
+
+
+400: bad request/error with clients request
+401: unauthorized
+
+*/
+
 app.use(
 	express.json(),
 	cors({

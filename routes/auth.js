@@ -17,9 +17,8 @@ const verifyToken = (req, res, next) => {
 
 // Get the role the user has for the specified project
 const getRole = (user, project) => {
-	for (const projectMember of project.users) {
+	for (const projectMember of project.users)
 		if (String(user._id) === String(projectMember.userId)) return projectMember.role;
-	}
 	return null;
 };
 

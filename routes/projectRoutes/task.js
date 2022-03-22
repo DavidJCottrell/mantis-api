@@ -12,7 +12,7 @@ router.get("/gettask/:projectId/:taskId", verifyToken, async (req, res) => {
 		const taskId = req.params.taskId;
 
 		for (const task of project.tasks)
-			if (String(task._id) === String(taskId)) return res.json({ task: task });
+			if (String(task._id) === String(taskId)) return res.status(200).json({ task: task });
 
 		// Send error if not
 	} catch (error) {
@@ -29,7 +29,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 
 		const project = await Project.findById(req.params.projectId);
 
-		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
+		if (!isLeader(req.user._id, project)) return res.status(401).send("Permission denied.");
 
 		let assignees = [];
 
@@ -62,8 +62,7 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res) => {
 			message: "Successfully added task to project",
 		});
 	} catch (error) {
-		console.log(error);
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -96,7 +95,7 @@ router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res) => 
 
 		res.status(201).json({ message: "Successfully deleted task" });
 	} catch (error) {
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -116,7 +115,7 @@ router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res)
 		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
 		res.status(201).json({ message: "Successfully updated subtasks" });
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -138,9 +137,9 @@ router.patch("/updatestatus/:projectId/:taskId", verifyToken, async (req, res) =
 		}
 
 		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
-		res.json({ task: updatedTask });
+		res.status(201).json({ task: updatedTask });
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -161,9 +160,9 @@ router.patch("/updateresolution/:projectId/:taskId", verifyToken, async (req, re
 			}
 
 		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
-		res.json({ task: updatedTask });
+		res.status(201).json({ task: updatedTask });
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -174,11 +173,12 @@ router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res) => {
 		const taskId = req.params.taskId;
 
 		for (const task of project.tasks)
-			if (String(task._id) === String(taskId)) return res.json({ subtasks: task.subtasks });
+			if (String(task._id) === String(taskId))
+				return res.status(200).json({ subtasks: task.subtasks });
 
 		// Send error if not
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -196,9 +196,7 @@ router.patch("/comments/updatecomments/:projectId/:taskId", verifyToken, async (
 		await Project.updateOne({ _id: project._id }, { $set: { tasks: project.tasks } });
 		res.status(201).json({ message: "Successfully updated comments" });
 	} catch (error) {
-		res.json({
-			message: error,
-		});
+		res.status(400).json({ error });
 	}
 });
 
@@ -209,11 +207,10 @@ router.get("/comments/:projectId/:taskId", verifyToken, async (req, res) => {
 		const taskId = req.params.taskId;
 
 		for (const task of project.tasks)
-			if (String(task._id) === String(taskId)) return res.json({ comments: task.comments });
+			if (String(task._id) === String(taskId))
+				return res.status(200).json({ comments: task.comments });
 	} catch (error) {
-		res.json({
-			message: error,
-		});
+		res.status(400).json({ error });
 	}
 });
 

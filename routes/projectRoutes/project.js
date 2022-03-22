@@ -3,7 +3,7 @@ const router = express.Router();
 const Project = require("../../models/Project");
 const User = require("../../models/User");
 const Invitation = require("../../models/Invitation");
-const { verifyToken, getRole, isLeader } = require("../auth.js");
+const { verifyToken, isLeader } = require("../auth.js");
 const { createProjectValidation } = require("../../validation.js");
 
 // Create project
@@ -37,13 +37,9 @@ router.post("/add", verifyToken, async (req, res) => {
 		user.projects.push({ projectId: project._id });
 		user.save();
 
-		res.status(201).json({
-			message: "Successfully created project",
-			id: project._id,
-		});
+		res.status(201).json({ message: "Successfully created project" });
 	} catch (error) {
-		console.log("Error saving:", error);
-		res.json({ message: error });
+		res.status(400).json({ message: error });
 	}
 });
 
@@ -60,7 +56,7 @@ router.get("/getproject/:projectId", verifyToken, async (req, res) => {
 			}
 		}
 
-		if (userExists) res.json({ project });
+		if (userExists) res.status(200).json({ project });
 		else res.status(400).send("User is not a memeber of this project.");
 	} catch (error) {
 		res.status(400).send("No project with that ID could be found.");
@@ -75,7 +71,7 @@ router.get("/getrole/:projectId", verifyToken, async (req, res) => {
 
 		for (const projectUser of project.users) {
 			if (String(user._id) === String(projectUser.userId)) {
-				return res.json({ role: projectUser.role });
+				return res.status(200).json({ role: projectUser.role });
 			}
 		}
 		res.status(400).json({ message: "User is not a memeber of this project." });
@@ -100,7 +96,7 @@ router.delete("/delete/:projectId", verifyToken, async (req, res) => {
 		// Delete project
 		await Project.deleteOne({ _id: project._id });
 
-		res.status(201).json({ message: "Successfully removed project" });
+		res.status(200).json({ message: "Successfully removed project" });
 	} catch (error) {
 		res.status(400).json({ error });
 	}
@@ -112,9 +108,9 @@ router.get("/invitations/:projectId", verifyToken, async (req, res) => {
 		const invitations = await Invitation.find({
 			"project.projectId": String(req.params.projectId),
 		});
-		res.json({ invitations });
+		res.status(200).json({ invitations });
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ message: error });
 	}
 });
 
@@ -124,7 +120,7 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 		const project = await Project.findById(req.params.projectId);
 		const user = await User.findById(req.params.userId);
 
-		if (!isLeader(user._id, project)) return res.status(400).send("Permission denied.");
+		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
 
 		await Project.updateOne(
 			{ _id: project._id },
@@ -138,11 +134,9 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 			{ safe: true, multi: true }
 		);
 
-		res.status(201).json({
-			message: "Successfully removed user",
-		});
+		res.status(200).json({ message: "Successfully removed user" });
 	} catch (error) {
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
@@ -153,7 +147,7 @@ router.patch("/updateuserrole/:projectId/:userId", verifyToken, async (req, res)
 		let userId = req.params.userId;
 		const newRole = req.body.role;
 
-		if (!isLeader(user._id, project)) return res.status(400).send("Permission denied.");
+		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
 
 		let newUsers = [];
 		for (let i = 0; i < project.users.length; i++) {
@@ -168,11 +162,9 @@ router.patch("/updateuserrole/:projectId/:userId", verifyToken, async (req, res)
 			{ $set: { users: newUsers } }
 		);
 
-		res.status(201).json({
-			message: "Successfully changed member's role",
-		});
+		res.status(200).json({ message: "Successfully changed member's role" });
 	} catch (error) {
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
