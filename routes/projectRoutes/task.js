@@ -16,7 +16,7 @@ router.get("/gettask/:projectId/:taskId", verifyToken, async (req, res) => {
 
 		// Send error if not
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ message: error });
 	}
 });
 

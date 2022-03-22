@@ -68,16 +68,16 @@ router.get("/getproject/:projectId", verifyToken, async (req, res) => {
 });
 
 // Get the user's role, based on their userId and projectId
-router.get("/getrole/:projectId/:userId", verifyToken, async (req, res) => {
+router.get("/getrole/:projectId", verifyToken, async (req, res) => {
 	try {
 		const project = await Project.findById(req.params.projectId);
+		const user = await User.findById(req.user._id);
 
 		for (const projectUser of project.users) {
-			if (String(req.params.userId) === String(projectUser.userId)) {
+			if (String(user._id) === String(projectUser.userId)) {
 				return res.json({ role: projectUser.role });
 			}
 		}
-
 		res.status(400).json({ message: "User is not a memeber of this project." });
 	} catch (error) {
 		res.status(400).json({ message: "No project with that ID could be found." });

@@ -9,47 +9,63 @@ const { createInviteValidation } = require("../validation.js");
 // Delete an invitation
 router.delete("/delete/:invitationId", verifyToken, async (req, res) => {
 	try {
-		const invitation = await Invitation.findById(req.params.invitationId);
-		const removedInvitation = await Invitation.remove({
+		await Invitation.deleteOne({
 			_id: req.params.invitationId,
 		});
-
 		res.status(200).json({
 			message: "Successfully deleted invite",
 		});
 	} catch (error) {
-		res.json({ error });
+		res.status(400).json({ error });
 	}
 });
 
 // Accept an invitation (adds user to project)
-router.post("/accept", verifyToken, async (req, res) => {
+router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 	try {
-		const project = await Project.findById(req.body.projectId);
-		const userToAdd = await User.findById(req.body.userId);
+		const invitation = await Invitation.findById(req.params.invitationId);
+		const project = await Project.findById(invitation.project.projectId);
+		const userToAdd = await User.findById(invitation.invitee.userId);
 
+		// Check if the user to be added to the project exists
 		if (userToAdd === null) return res.status(400).send("User does not exist");
-		for (existingUser of project.users) {
+
+		// Check the user is not already a member of the project
+		for (existingUser of project.users)
 			if (String(userToAdd._id) === String(existingUser.userId))
 				return res.status(400).send("This user is already a member of this project");
-		}
 
-		userToAdd.projects.push({ projectId: project._id });
-		project.users.push({
-			userId: userToAdd._id,
-			name: userToAdd.firstName + " " + userToAdd.lastName,
-			username: userToAdd.username,
-			role: req.body.role,
-		});
+		// Add project to user's list of project
+		await User.updateOne(
+			{ _id: userToAdd._id },
+			{
+				$push: {
+					projects: [{ projectId: project._id }],
+				},
+			}
+		);
 
-		userToAdd.save();
-		project.save();
+		// Add user to the project's list of users
+		await Project.updateOne(
+			{ _id: project._id },
+			{
+				$push: {
+					users: [
+						{
+							userId: userToAdd._id,
+							name: userToAdd.firstName + " " + userToAdd.lastName,
+							username: userToAdd.username,
+							role: invitation.role,
+						},
+					],
+				},
+			}
+		);
 
-		res.status(201).json({
-			message: "Successfully added user to project",
-		});
+		await Invitation.deleteOne({ _id: invitation._id });
+		res.status(201).json({ message: "Successfully added user to project" });
 	} catch (error) {
-		res.json({ message: error });
+		res.status(400).json({ message: error });
 	}
 });
 

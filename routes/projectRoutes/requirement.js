@@ -16,10 +16,7 @@ router.patch("/addrequirement/:projectId", verifyToken, async (req, res) => {
 
 		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
 
-		const updatedProject = await Project.updateOne(
-			{ _id: project._id },
-			{ $push: { requirements: [req.body] } }
-		);
+		await Project.updateOne({ _id: project._id }, { $push: { requirements: [req.body] } });
 		res.status(201).json({
 			message: "Successfully added requirement to project",
 		});
