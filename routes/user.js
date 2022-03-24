@@ -7,30 +7,18 @@ const { verifyToken } = require("./auth.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { registerValidation, loginValidation } = require("../validation.js");
+const { getUserProjects } = require("./utilities");
 
 // Returns all the projects belonging to a specific user (based on their token)
 router.get("/projects", verifyToken, async (req, res) => {
 	try {
+		const userId = req.user._id;
 		// Get all project IDs of projects that user is a member of
-		const { projects } = await User.findById(req.user._id);
+		const { projects } = await User.findById(userId);
 
-		let projectsData = [];
+		let userProjects = await getUserProjects(projects, userId);
 
-		for (const { projectId } of projects) {
-			const project = await Project.findById(projectId);
-
-			for (const user of project.users) {
-				if (String(user.userId) === String(req.user._id))
-					if (project !== null)
-						// Incase a deleted project's ID still exisits with user
-						projectsData.push({
-							project: project,
-							role: user.role,
-						});
-			}
-		}
-
-		res.status(200).json(projectsData);
+		res.status(200).json(userProjects);
 	} catch (error) {
 		res.status(400).json(error);
 	}

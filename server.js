@@ -4,27 +4,13 @@ const app = express();
 const mongoose = require("mongoose");
 
 //Import routes
-const projectRoute = require("./routes/projectRoutes/project");
-const taskRoute = require("./routes/projectRoutes/task");
-const requirementRoute = require("./routes/projectRoutes/requirement");
+const projectRoute = require("./routes/project_routes/project");
+const taskRoute = require("./routes/project_routes/task");
+const requirementRoute = require("./routes/project_routes/requirement");
 const userRoute = require("./routes/user");
 const invitationRoute = require("./routes/invitation");
 
 var cors = require("cors");
-
-/*
--- HTTP Status Codes --
-
-Success Codes:
-
-200: OK
-201: Resource created
-
-
-400: bad request/error with clients request
-401: unauthorized
-
-*/
 
 app.use(
 	express.json(),
@@ -34,12 +20,15 @@ app.use(
 	})
 );
 
+// Routes relating to project functions
 app.use("/project", projectRoute);
 app.use("/project/tasks", taskRoute);
 app.use("/project/requirements", requirementRoute);
 
+// Routes relating to user functions
 app.use("/user", userRoute);
 
+// Routes relating to invitiation functions
 app.use("/invitation", invitationRoute);
 
 //Connect to DB

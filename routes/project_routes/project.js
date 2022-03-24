@@ -5,39 +5,45 @@ const User = require("../../models/User");
 const Invitation = require("../../models/Invitation");
 const { verifyToken, isLeader } = require("../auth.js");
 const { createProjectValidation } = require("../../validation.js");
+const { getUserProjects } = require("../utilities");
 
 // Create project
 router.post("/add", verifyToken, async (req, res) => {
-	const user = await User.findById(req.user._id);
-
-	req.body.users = [
-		{
-			userId: String(user._id),
-			name: user.firstName + " " + user.lastName,
-			username: user.username,
-			role: "Team Leader",
-		},
-	]; // Automatically make the person who created the project the first user
-	req.body.tasks = []; // Ensure no tasks are added when a project is created
-
-	// Validate
-	const { error } = createProjectValidation(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
-
 	try {
-		const project = new Project({
+		const user = await User.findById(req.user._id);
+
+		const newProject = {
 			title: req.body.title,
-			users: req.body.users,
-			tasks: req.body.tasks,
+			users: [
+				{
+					userId: String(user._id),
+					name: user.firstName + " " + user.lastName,
+					username: user.username,
+					role: "Team Leader",
+				},
+			],
+			tasks: [],
 			description: req.body.description,
 			githubURL: req.body.githubURL,
-		});
+		};
+
+		// Validate
+		const { error } = createProjectValidation(newProject);
+		if (error) return res.status(400).send(error.details[0].message);
+
+		// Save new project document
+		const project = new Project(newProject);
 		await project.save();
 
+		// Save reference to project to the creating user's list of projects
 		user.projects.push({ projectId: project._id });
-		user.save();
+		await user.save();
 
-		res.status(201).json({ message: "Successfully created project" });
+		// Get updated list of user's projects
+		let userProjects = await getUserProjects(user.projects, user.id);
+
+		// Return updated list of projects
+		res.status(201).json(userProjects);
 	} catch (error) {
 		res.status(400).json({ message: error });
 	}
