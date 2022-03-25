@@ -1,40 +1,62 @@
+// Router
 const express = require("express");
 const router = express.Router();
+
+// Models
 const Invitation = require("../models/Invitation");
 const Project = require("../models/Project");
 const User = require("../models/User");
-const { verifyToken, isLeader } = require("./auth.js");
-const { createInviteValidation } = require("../validation.js");
+
+// Utility functions and errors
+const { verifyToken, isLeader } = require("../utilities/auth.js");
+const { createInviteValidation } = require("../utilities/validation.js");
+const { ApiError } = require("../utilities/error");
 
 // Delete an invitation
 router.delete("/delete/:invitationId", verifyToken, async (req, res) => {
 	try {
-		await Invitation.deleteOne({
-			_id: req.params.invitationId,
-		});
-		res.status(200).json({
-			message: "Successfully deleted invite",
-		});
+		await Invitation.deleteOne({ _id: req.params.invitationId });
+		res.status(200).json({ message: "Successfully deleted invite" });
 	} catch (error) {
-		res.status(400).json({ error });
+		next(ApiError.recourseNotFound("No invitation found with that ID"));
+		return;
 	}
 });
 
 // Accept an invitation (adds user to project)
 router.post("/accept/:invitationId", verifyToken, async (req, res) => {
+	let invitation;
 	try {
-		const invitation = await Invitation.findById(req.params.invitationId);
-		const project = await Project.findById(invitation.project.projectId);
-		const userToAdd = await User.findById(invitation.invitee.userId);
+		invitation = await Invitation.findById(req.params.invitationId);
+	} catch (error) {
+		next(ApiError.recourseNotFound("No invitation found with that ID"));
+		return;
+	}
 
-		// Check if the user to be added to the project exists
-		if (userToAdd === null) return res.status(400).send("User does not exist");
+	let project;
+	try {
+		project = await Project.findById(invitation.project.projectId);
+	} catch (error) {
+		next(ApiError.recourseNotFound("No project found with that ID"));
+		return;
+	}
 
-		// Check the user is not already a member of the project
-		for (existingUser of project.users)
-			if (String(userToAdd._id) === String(existingUser.userId))
-				return res.status(400).send("This user is already a member of this project");
+	let userToAdd;
+	try {
+		userToAdd = await User.findById(invitation.invitee.userId);
+	} catch (error) {
+		next(ApiError.recourseNotFound("No user found with that ID"));
+		return;
+	}
 
+	// Check the user is not already a member of the project
+	for (existingUser of project.users)
+		if (String(userToAdd._id) === String(existingUser.userId)) {
+			next(ApiError.badRequest("This user is already a member of this project"));
+			return;
+		}
+
+	try {
 		// Add project to user's list of project
 		await User.updateOne(
 			{ _id: userToAdd._id },
@@ -44,7 +66,12 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 				},
 			}
 		);
+	} catch (error) {
+		next(ApiError.internal("Error adding project to user"));
+		return;
+	}
 
+	try {
 		// Add user to the project's list of users
 		await Project.updateOne(
 			{ _id: project._id },
@@ -61,71 +88,81 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 				},
 			}
 		);
-
-		await Invitation.deleteOne({ _id: invitation._id });
-		res.status(201).json({ message: "Successfully added user to project" });
 	} catch (error) {
-		res.status(400).json({ message: error });
+		next(ApiError.internal("Error adding user to project"));
+		return;
 	}
+
+	try {
+		await Invitation.deleteOne({ _id: invitation._id });
+	} catch (error) {
+		next(ApiError.internal("Error deleting invitation"));
+		return;
+	}
+
+	res.status(201).json({ message: "Successfully added user to project" });
 });
 
 // Create new invitation to project
 router.post("/addinvitation/:username", verifyToken, async (req, res) => {
+	let invitedUser;
 	try {
-		// Get the full details for the invited user
-		const invitedUser = await User.findOne({
-			username: req.params.username,
-		});
-
-		// Check the invited user exsists
-		if (!invitedUser) {
-			res.status(404).json({
-				message: "User not found",
-			});
-		}
-
-		// Validate invite data
-		const { error } = createInviteValidation(req.body);
-		if (error) return res.status(400).send(error.details[0].message);
-
-		const project = await Project.findById(req.body.project.projectId);
-
-		if (!isLeader(req.user._id, project)) return res.status(400).send("Permission denied.");
-
-		// Check user doesnt already exist in project
-		for (existingUser of project.users) {
-			if (String(invitedUser._id) === String(existingUser.userId))
-				return res.status(400).send("This user is already a member of this project");
-		}
-
-		if (
-			await Invitation.findOne({
-				"invitee.userId": invitedUser._id,
-			})
-		) {
-			return res.status(400).send("This user has already been invited");
-		}
-
-		// Create object for invited user's details
-		const invitee = {
-			userId: invitedUser._id,
-			name: invitedUser.firstName + " " + invitedUser.lastName,
-			username: invitedUser.username,
-		};
-
-		// Add to the invitation
-		req.body["invitee"] = invitee;
-
-		// Save invitation
-		const invitation = new Invitation(req.body);
-		await invitation.save();
-
-		res.status(201).json({
-			message: "Successfully invited user",
-		});
-	} catch (e) {
-		console.log(e);
+		invitedUser = await User.findOne({ username: req.params.username }); // Get the full details for the invited user
+	} catch (error) {
+		next(ApiError.recourseNotFound("No user found with that username"));
+		return;
 	}
+
+	// Validate invite data
+	const { error } = createInviteValidation(req.body);
+	if (error) {
+		next(ApiError.badRequest(error.details[0].message));
+		return;
+	}
+
+	let project;
+	try {
+		project = await Project.findById(req.body.project.projectId);
+	} catch (error) {
+		next(ApiError.recourseNotFound("No project found with that ID"));
+		return;
+	}
+
+	// User must be a Team Leader in order to create project invitations
+	if (!isLeader(req.userTokenPayload._id, project)) {
+		next(ApiError.forbiddenRequest("Permission denied"));
+		return;
+	}
+
+	// Check user doesnt already exist in project
+	for (existingUser of project.users) {
+		if (String(invitedUser._id) === String(existingUser.userId)) {
+			next(ApiError.badRequest("This user is already a member of this project"));
+			return;
+		}
+	}
+
+	if (await Invitation.findOne({ "invitee.userId": invitedUser._id })) {
+		next(ApiError.badRequest("This user has already been invited"));
+		return;
+	}
+
+	// Create object for invited user's details
+	const invitee = {
+		userId: invitedUser._id,
+		name: invitedUser.firstName + " " + invitedUser.lastName,
+		username: invitedUser.username,
+	};
+
+	// Add invitee object to the invitation
+	req.body["invitee"] = invitee;
+
+	// Save invitation
+	const invitation = new Invitation(req.body);
+
+	await invitation.save();
+
+	res.status(201).json({ message: "Successfully invited user" });
 });
 
 module.exports = router;
