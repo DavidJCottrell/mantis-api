@@ -3,6 +3,8 @@ const router = express.Router();
 const { verifyToken } = require("../utilities/auth.js");
 const { getProjects, getInvitations, getTasks, register, login } = require("../controllers/users");
 
+// Prefix: /users
+
 // Returns all the projects belonging to a specific user (based on their token)
 router.get("/projects", verifyToken, getProjects);
 

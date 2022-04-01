@@ -9,6 +9,8 @@ const {
 	getProjectRequirements,
 } = require("../controllers/requirements.js");
 
+// Prefix: /projects/requirements
+
 // Add requirement to project with id
 router.patch("/addrequirement/:projectId", verifyToken, addRequirement);
 

@@ -4,6 +4,8 @@ const router = express.Router();
 const { verifyToken } = require("../utilities/auth.js");
 const { deleteInvitation, acceptInvitation, addInvitation } = require("../controllers/invitations");
 
+// Prefix: /invitations
+
 // Delete an invitation
 router.delete("/delete/:invitationId", verifyToken, deleteInvitation);
 

@@ -9,17 +9,12 @@ const { getProjectByID } = require("./common");
 const getTask = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	// For each task within the given project
 	for (const task of project.tasks)
-		if (String(task._id) === String(taskId)) return res.status(200).json({ task: task }); // If the task with the given ID is found
+		if (String(task._id) === String(taskId)) return res.status(200).json(task); // If the task with the given ID is found
 
 	next(ApiError.recourseNotFound("No task found with that ID"));
 };
@@ -79,13 +74,9 @@ const addTask = async (req, res, next) => {
 
 const removeTask = async (req, res, next) => {
 	const taskId = req.params.taskId;
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	if (!isLeader(req.userTokenPayload._id, project)) {
 		next(ApiError.forbiddenRequest("Permission denied"));
@@ -125,13 +116,8 @@ const updateSubTasks = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const subTasks = req.body;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("Could not find project with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	let tasks = project.tasks;
 	for (let i = 0; i < tasks.length; i++)
@@ -151,13 +137,8 @@ const updateStatus = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const newStatus = req.body.status;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	let tasks = project.tasks;
 	let updatedTask;
@@ -176,19 +157,14 @@ const updateStatus = async (req, res, next) => {
 		return;
 	}
 
-	res.status(201).json({ task: updatedTask });
+	res.status(201).json(updatedTask);
 };
 
 const getSubTasks = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	for (const task of project.tasks)
 		if (String(task._id) === String(taskId))
@@ -201,13 +177,8 @@ const updateComments = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const newComments = req.body;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	for (let i = 0; i < project.tasks.length; i++)
 		if (String(project.tasks[i]._id) === String(taskId))
@@ -226,13 +197,8 @@ const updateComments = async (req, res, next) => {
 const getComments = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	for (const task of project.tasks)
 		if (String(task._id) === String(taskId))
@@ -241,12 +207,34 @@ const getComments = async (req, res, next) => {
 	next(ApiError.recourseNotFound("No task found with that ID"));
 };
 
+// Update resolution
+const updateResolution = async (req, res, next) => {
+	const taskId = req.params.taskId;
+	const newResolution = req.body.resolution;
+
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
+
+	let tasks = project.tasks;
+	let updatedTask;
+
+	for (let i = 0; i < tasks.length; i++)
+		if (String(tasks[i]._id) === String(taskId)) {
+			tasks[i].resolution = newResolution;
+			updatedTask = tasks[i];
+		}
+
+	await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
+	res.status(201).json(updatedTask);
+};
+
 module.exports = {
 	getTask: getTask,
 	addTask: addTask,
 	removeTask: removeTask,
 	updateSubTasks: updateSubTasks,
 	updateStatus: updateStatus,
+	updateResolution: updateResolution,
 	getSubTasks: getSubTasks,
 	updateComments: updateComments,
 	getComments: getComments,

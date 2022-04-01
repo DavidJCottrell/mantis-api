@@ -201,7 +201,7 @@ const changeMemberRole = async (req, res) => {
 		return;
 	}
 
-	if (!isLeader(req.user._id, project)) {
+	if (!isLeader(req.userTokenPayload._id, project)) {
 		next(ApiError.forbiddenRequest("Permission denied"));
 		return;
 	}
