@@ -1,6 +1,6 @@
 # Get all project related to the user whos token is passed
 GET http://localhost:9000/user/projects
-auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDYwODc0Nzl9.QCCixBrjsgC98-fowV5y3TkFQkVKPCk6kuuSxsjcBms
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDgzMTAzNTYsImV4cCI6MTY0ODkxNTE1Nn0.U5_noPN7o89HybOHC8IY8mdFDKVycYDa5Jk7CWrbdns
 
 
 
@@ -55,7 +55,7 @@ content-type: application/json
 
 ###
 # David Cottrell login
-POST http://34.125.208.243:80/user/login
+POST http://localhost:9000/user/login
 content-type: application/json
 
 {

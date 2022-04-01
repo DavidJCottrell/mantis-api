@@ -1,72 +1,42 @@
-// Router
-const express = require("express");
-const router = express.Router();
-
 // Models
 const Project = require("../models/Project");
 const User = require("../models/User");
 const Invitation = require("../models/Invitation");
 
+// Validation
+const { registerValidation, loginValidation } = require("../utilities/validation.js");
+
 // Token and passwords
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-// Utility functions and errors
-const { verifyToken } = require("../utilities/auth.js");
-const { registerValidation, loginValidation } = require("../utilities/validation.js");
-const { getUserProjects, generateUsername } = require("../utilities/common-functions");
 const { ApiError } = require("../utilities/error");
+const { getUserProjects, getUserByID, getUserInvitations } = require("../controllers/common.js");
 
-// Returns all the projects belonging to a specific user (based on their token)
-router.get("/projects", verifyToken, async (req, res, next) => {
+const getProjects = async (req, res, next) => {
 	const userId = req.userTokenPayload._id;
 
-	// Get all project IDs of projects that user is a member of
-	let projectIds;
-	try {
-		const { projects } = await User.findById(userId);
-		projectIds = projects;
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user found with that ID"));
-		return;
-	}
+	// Get the projectIDs for the project(s) the user belongs to
+	const { projects: projectIDs } = await getUserByID(userId, next);
+	if (!projectIDs) return;
 
 	// Get the project data from the projectIDs
-	let userProjects;
-	try {
-		userProjects = await getUserProjects(projectIds, userId);
-	} catch (error) {
-		next(ApiError.badRequest("Error getting user's projects"));
-		return;
-	}
+	let userProjects = await getUserProjects(projectIDs, userId, next);
 
 	res.status(200).json(userProjects);
-});
+};
 
-// Get all invitations for a user
-router.get("/invitations", verifyToken, async (req, res, next) => {
-	try {
-		const invitations = await Invitation.find({ "invitee.userId": req.userTokenPayload._id });
-		res.status(200).json(invitations);
-		return;
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user found with that ID"));
-		return;
-	}
-});
+const getInvitations = async (req, res, next) => {
+	const invitations = await getUserInvitations(req.userTokenPayload._id, next);
+	if (!invitations) return;
 
-// Returns all the tasks allocated to a specific user (based on their token)
-router.get("/tasks", verifyToken, async (req, res, next) => {
-	let projectIDs;
+	res.status(200).json(invitations);
+};
 
-	try {
-		// Get all project IDs of projects that user is a member of
-		const { projects } = await User.findById(req.userTokenPayload._id);
-		projectIDs = projects;
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user found with that ID"));
-		return;
-	}
+const getTasks = async (req, res, next) => {
+	// Get the projectIDs for the project(s) the user belongs to
+	const { projects: projectIDs } = await getUserByID(req.userTokenPayload._id, next);
+	if (!projectIDs) return;
 
 	let assignedTasks = [];
 	try {
@@ -91,9 +61,9 @@ router.get("/tasks", verifyToken, async (req, res, next) => {
 		return;
 	}
 	res.status(200).json(assignedTasks);
-});
+};
 
-router.post("/register", async (req, res, next) => {
+const register = async (req, res, next) => {
 	// Validate
 	const { error } = registerValidation(req.body);
 	if (error) {
@@ -127,7 +97,7 @@ router.post("/register", async (req, res, next) => {
 		email: req.body.email,
 		password: hashedPassword,
 		username: username,
-		projects: req.body.projects,
+		projects: [],
 	});
 
 	await user.save();
@@ -135,10 +105,14 @@ router.post("/register", async (req, res, next) => {
 	// Create jwt
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "7d" });
 	res.status(201).json({ token: token, user: user });
-});
+};
 
-// Login
-router.post("/login", async (req, res, next) => {
+const login = async (req, res, next) => {
+	if (req.body === undefined) {
+		next(ApiError.badRequest("No user details supplied"));
+		return;
+	}
+
 	// Validate
 	const { error } = loginValidation(req.body);
 	if (error) {
@@ -146,13 +120,17 @@ router.post("/login", async (req, res, next) => {
 		return;
 	}
 
+	const badCredentialsMsg =
+		"The credentials you have provided are incorrect. Please try again...";
+
 	// Check if user exists
 	const email = req.body.email;
 	let user;
-	try {
-		user = await User.findOne({ email: email.toLowerCase() });
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user exists with that email address"));
+
+	user = await User.findOne({ email: email.toLowerCase() });
+
+	if (user === null) {
+		next(ApiError.recourseNotFound(badCredentialsMsg));
 		return;
 	}
 
@@ -160,13 +138,19 @@ router.post("/login", async (req, res, next) => {
 	const password = req.body.password;
 	const validPassword = await bcrypt.compare(password, user.password);
 	if (!validPassword) {
-		next(ApiError.recourseNotFound("Password is incorrect"));
+		next(ApiError.recourseNotFound(badCredentialsMsg));
 		return;
 	}
 
 	// Create jwt
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "7d" });
 	res.status(200).json({ token: token, user: user });
-});
+};
 
-module.exports = router;
+module.exports = {
+	getProjects: getProjects,
+	getInvitations: getInvitations,
+	getTasks: getTasks,
+	register: register,
+	login: login,
+};

@@ -1,11 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 
-const projectRoute = require("./routes/project");
-const taskRoute = require("./routes/task");
-const requirementRoute = require("./routes/requirement");
-const userRoute = require("./routes/user");
-const invitationRoute = require("./routes/invitation");
+const projectsRoute = require("./routes/projects");
+const tasksRoute = require("./routes/tasks");
+const requirementsRoute = require("./routes/requirements");
+const usersRoute = require("./routes/users");
+const invitationsRoute = require("./routes/invitations");
 
 const { apiErrorHandler } = require("./utilities/error");
 
@@ -19,15 +19,16 @@ module.exports = function (app) {
 	);
 
 	// Routes relating to project functions
-	app.use("/project", projectRoute);
-	app.use("/project/tasks", taskRoute);
-	app.use("/project/requirements", requirementRoute);
+	app.use("/projects", projectsRoute);
+	app.use("/projects/tasks", tasksRoute);
+	app.use("/projects/requirements", requirementsRoute);
 
 	// Routes relating to user functions
-	app.use("/user", userRoute);
+	app.use("/users", usersRoute);
 
 	// Routes relating to invitiation functions
-	app.use("/invitation", invitationRoute);
+	app.use("/invitations", invitationsRoute);
 
+	// *** This must be last in the middleware stack ***
 	app.use(apiErrorHandler);
 };

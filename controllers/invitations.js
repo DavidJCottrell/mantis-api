@@ -1,19 +1,16 @@
-// Router
-const express = require("express");
-const router = express.Router();
-
 // Models
-const Invitation = require("../models/Invitation");
 const Project = require("../models/Project");
 const User = require("../models/User");
+const Invitation = require("../models/Invitation");
 
 // Utility functions and errors
-const { verifyToken, isLeader } = require("../utilities/auth.js");
+const { isLeader } = require("../utilities/auth.js");
 const { createInviteValidation } = require("../utilities/validation.js");
 const { ApiError } = require("../utilities/error");
 
-// Delete an invitation
-router.delete("/delete/:invitationId", verifyToken, async (req, res) => {
+const { getUserProjects, getUserInvitations } = require("./common.js");
+
+const deleteInvitation = async (req, res, next) => {
 	try {
 		await Invitation.deleteOne({ _id: req.params.invitationId });
 		res.status(200).json({ message: "Successfully deleted invite" });
@@ -21,10 +18,10 @@ router.delete("/delete/:invitationId", verifyToken, async (req, res) => {
 		next(ApiError.recourseNotFound("No invitation found with that ID"));
 		return;
 	}
-});
+};
 
-// Accept an invitation (adds user to project)
-router.post("/accept/:invitationId", verifyToken, async (req, res) => {
+const acceptInvitation = async (req, res, next) => {
+	// Get the invitation from the given ID
 	let invitation;
 	try {
 		invitation = await Invitation.findById(req.params.invitationId);
@@ -33,6 +30,7 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 		return;
 	}
 
+	// Find the project with the ID found in the invitation
 	let project;
 	try {
 		project = await Project.findById(invitation.project.projectId);
@@ -41,6 +39,7 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 		return;
 	}
 
+	// Find the invited user by their ID
 	let userToAdd;
 	try {
 		userToAdd = await User.findById(invitation.invitee.userId);
@@ -50,11 +49,12 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 	}
 
 	// Check the user is not already a member of the project
-	for (existingUser of project.users)
+	for (existingUser of project.users) {
 		if (String(userToAdd._id) === String(existingUser.userId)) {
 			next(ApiError.badRequest("This user is already a member of this project"));
 			return;
 		}
+	}
 
 	try {
 		// Add project to user's list of project
@@ -94,17 +94,34 @@ router.post("/accept/:invitationId", verifyToken, async (req, res) => {
 	}
 
 	try {
+		// Invitation can now be deleted
 		await Invitation.deleteOne({ _id: invitation._id });
 	} catch (error) {
 		next(ApiError.internal("Error deleting invitation"));
 		return;
 	}
 
-	res.status(201).json({ message: "Successfully added user to project" });
-});
+	// Get their updated list of projects
+	const newProjects = await getUserProjects(
+		[...userToAdd.projects, { projectId: project._id }],
+		userToAdd._id,
+		next
+	);
+	if (!newProjects) {
+		next(ApiError.internal("Error deleting invitation"));
+		return;
+	}
 
-// Create new invitation to project
-router.post("/addinvitation/:username", verifyToken, async (req, res) => {
+	// Get their updated list of invitations
+	// ...
+	const newInvitations = await getUserInvitations(req.userTokenPayload._id, next);
+	if (!newInvitations) return;
+
+	// Return their list of new invitations and projects
+	res.status(201).json({ updatedProjects: newProjects, updatedInvitations: newInvitations });
+};
+
+const addInvitation = async (req, res, next) => {
 	let invitedUser;
 	try {
 		invitedUser = await User.findOne({ username: req.params.username }); // Get the full details for the invited user
@@ -163,6 +180,10 @@ router.post("/addinvitation/:username", verifyToken, async (req, res) => {
 	await invitation.save();
 
 	res.status(201).json({ message: "Successfully invited user" });
-});
+};
 
-module.exports = router;
+module.exports = {
+	deleteInvitation: deleteInvitation,
+	acceptInvitation: acceptInvitation,
+	addInvitation: addInvitation,
+};

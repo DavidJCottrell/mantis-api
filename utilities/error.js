@@ -16,6 +16,10 @@ class ApiError {
 		return new ApiError(403, msg);
 	}
 
+	static invalidCredentials(msg) {
+		return new ApiError(401, msg);
+	}
+
 	static internal(msg) {
 		return new ApiError(500, msg);
 	}

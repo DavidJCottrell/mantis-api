@@ -1,22 +1,25 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { ApiError } = require("../utilities/error");
 
 // Checks if the supplied auth token is valid
 const verifyToken = async (req, res, next) => {
-	try {
-		const token = req.header("auth-token");
-		if (!token) return res.status(401).send("Access Denied");
-
-		const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-		req.userTokenPayload = verified;
-
-		const user = await User.findById(req.userTokenPayload._id);
-		if (!user) res.status(401).send("User Does Not Exist");
-
-		next();
-	} catch (err) {
-		res.status(401).send("Invalid Token");
+	const token = req.header("auth-token");
+	if (!token) {
+		next(ApiError.invalidCredentials("No token provided"));
+		return;
 	}
+
+	const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+	req.userTokenPayload = verified;
+
+	const user = await User.findById(req.userTokenPayload._id);
+	if (!user) {
+		next(ApiError.recourseNotFound("No user found"));
+		return;
+	}
+
+	next();
 };
 
 // Get the role the user has for the specified project

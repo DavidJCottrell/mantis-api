@@ -4,11 +4,15 @@
 	"main": "server.js",
 	"scripts": {
 		"start": "nodemon server.js",
-		"killnode": "killall -9 node"
+		"killnode": "killall -9 node",
+		"test": "mocha 'tests' --recursive --timeout 10000"
 	},
 	"author": "David Cottrell",
 	"devDependencies": {
-		"nodemon": "^2.0.15"
+		"chai": "^4.3.6",
+		"mocha": "^9.2.2",
+		"nodemon": "^2.0.15",
+		"supertest": "^6.2.2"
 	},
 	"dependencies": {
 		"@hapi/joi": "^17.1.1",

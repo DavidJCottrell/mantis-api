@@ -1,19 +1,14 @@
-// Router
-const express = require("express");
-const router = express.Router();
-
-// Models
 const Project = require("../models/Project");
 const User = require("../models/User");
 
-// Utility functions and errors
-const { verifyToken, isLeader } = require("../utilities/auth.js");
+const { isLeader } = require("../utilities/auth.js");
 const { createTaskValidation } = require("../utilities/validation.js");
 const { ApiError } = require("../utilities/error");
+const { getProjectByID } = require("./common");
 
-// Get the task with the given id
-router.get("/gettask/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const getTask = async (req, res, next) => {
 	const taskId = req.params.taskId;
+
 	let project;
 	try {
 		project = await Project.findById(req.params.projectId);
@@ -27,10 +22,9 @@ router.get("/gettask/:projectId/:taskId", verifyToken, async (req, res, next) =>
 		if (String(task._id) === String(taskId)) return res.status(200).json({ task: task }); // If the task with the given ID is found
 
 	next(ApiError.recourseNotFound("No task found with that ID"));
-});
+};
 
-// Add task to project with id
-router.patch("/addtask/:projectId", verifyToken, async (req, res, next) => {
+const addTask = async (req, res, next) => {
 	// Validate
 	const { error } = createTaskValidation(req.body);
 	if (error) {
@@ -38,13 +32,8 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res, next) => {
 		return;
 	}
 
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId);
+	if (!project) return;
 
 	if (!isLeader(req.userTokenPayload._id, project)) {
 		next(ApiError.forbiddenRequest("Permission denied"));
@@ -84,11 +73,11 @@ router.patch("/addtask/:projectId", verifyToken, async (req, res, next) => {
 		next(ApiError.internal("Error adding task to project"));
 		return;
 	}
-	res.status(201).json({ message: "Successfully added task to project" });
-});
 
-// Remove task
-router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res, next) => {
+	res.status(201).json({ message: "Successfully added task to project" });
+};
+
+const removeTask = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	let project;
 	try {
@@ -130,10 +119,9 @@ router.patch("/removetask/:projectId/:taskId", verifyToken, async (req, res, nex
 	}
 
 	res.status(201).json({ message: "Successfully deleted task" });
-});
+};
 
-// Update subtasks (add/edit/remove)
-router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const updateSubTasks = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const subTasks = req.body;
 
@@ -157,10 +145,9 @@ router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, async (req, res,
 	}
 
 	res.status(201).json({ message: "Successfully updated subtasks" });
-});
+};
 
-// Update status
-router.patch("/updatestatus/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const updateStatus = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const newStatus = req.body.status;
 
@@ -190,42 +177,9 @@ router.patch("/updatestatus/:projectId/:taskId", verifyToken, async (req, res, n
 	}
 
 	res.status(201).json({ task: updatedTask });
-});
+};
 
-// Update resolution
-router.patch("/updateresolution/:projectId/:taskId", verifyToken, async (req, res, next) => {
-	const taskId = req.params.taskId;
-	const newResolution = req.body.resolution;
-
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
-
-	let tasks = project.tasks;
-	let updatedTask;
-
-	for (let i = 0; i < tasks.length; i++)
-		if (String(tasks[i]._id) === String(taskId)) {
-			tasks[i].resolution = newResolution;
-			updatedTask = tasks[i];
-		}
-
-	try {
-		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
-	} catch (error) {
-		next(ApiError.internal("Could not update project's resolution"));
-		return;
-	}
-
-	res.status(201).json({ task: updatedTask });
-});
-
-// Get all the subtasks for a given project
-router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const getSubTasks = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
 	let project;
@@ -241,10 +195,9 @@ router.get("/subtasks/:projectId/:taskId", verifyToken, async (req, res, next) =
 			return res.status(200).json({ subtasks: task.subtasks });
 
 	next(ApiError.recourseNotFound("Could not find task with that ID"));
-});
+};
 
-// Update comments (add/edit/remove)
-router.patch("/comments/updatecomments/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const updateComments = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const newComments = req.body;
 
@@ -268,10 +221,9 @@ router.patch("/comments/updatecomments/:projectId/:taskId", verifyToken, async (
 	}
 
 	res.status(201).json({ message: "Successfully updated comments" });
-});
+};
 
-// Get all comments for a given task
-router.get("/comments/:projectId/:taskId", verifyToken, async (req, res, next) => {
+const getComments = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
 	let project;
@@ -287,6 +239,15 @@ router.get("/comments/:projectId/:taskId", verifyToken, async (req, res, next) =
 			return res.status(200).json({ comments: task.comments });
 
 	next(ApiError.recourseNotFound("No task found with that ID"));
-});
+};
 
-module.exports = router;
+module.exports = {
+	getTask: getTask,
+	addTask: addTask,
+	removeTask: removeTask,
+	updateSubTasks: updateSubTasks,
+	updateStatus: updateStatus,
+	getSubTasks: getSubTasks,
+	updateComments: updateComments,
+	getComments: getComments,
+};

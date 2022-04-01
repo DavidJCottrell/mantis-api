@@ -1,19 +1,14 @@
-// Router
-const express = require("express");
-const router = express.Router();
-
 // Models
 const Project = require("../models/Project");
 const User = require("../models/User");
 const Invitation = require("../models/Invitation");
-
-const { verifyToken, isLeader, getRole } = require("../utilities/auth.js");
-const { createProjectValidation } = require("../utilities/validation.js");
-const { getUserProjects } = require("../utilities/common-functions");
 const { ApiError } = require("../utilities/error");
 
-// Create project
-router.post("/add", verifyToken, async (req, res, next) => {
+const { isLeader, getRole } = require("../utilities/auth.js");
+const { createProjectValidation } = require("../utilities/validation.js");
+const { getUserProjects, getProjectByID, getUserByID } = require("./common.js");
+
+const createProject = async (req, res, next) => {
 	let user;
 	try {
 		user = await User.findById(req.userTokenPayload._id);
@@ -63,17 +58,11 @@ router.post("/add", verifyToken, async (req, res, next) => {
 
 	// Return updated list of projects
 	res.status(201).json(userProjects);
-});
+};
 
-// Returns a specific project along with the user's role
-router.get("/getproject/:projectId", verifyToken, async (req, res, next) => {
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+const getProject = async (req, res, next) => {
+	const project = await getProjectByID(req.params.projectId, next);
+	if (!project) return;
 
 	let userExists = false;
 	for (const user of project.users) {
@@ -95,10 +84,9 @@ router.get("/getproject/:projectId", verifyToken, async (req, res, next) => {
 	}
 
 	res.status(200).json({ project: project, role: role });
-});
+};
 
-// Get the user's role, based on their userId and projectId
-router.get("/getrole/:projectId", verifyToken, async (req, res) => {
+const getMemberRole = async (req, res, next) => {
 	let project;
 	try {
 		project = await Project.findById(req.params.projectId);
@@ -122,17 +110,11 @@ router.get("/getrole/:projectId", verifyToken, async (req, res) => {
 	}
 
 	return res.status(200).json({ role: role });
-});
+};
 
-// Delete project
-router.delete("/delete/:projectId", verifyToken, async (req, res) => {
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+const deleteProject = async (req, res, next) => {
+	const project = await getProjectByID(req.params.projectId, next);
+	if (project === undefined) return;
 
 	try {
 		// Remove project from each member's "projects" list
@@ -156,10 +138,9 @@ router.delete("/delete/:projectId", verifyToken, async (req, res) => {
 	}
 
 	res.status(200).json({ message: "Successfully removed project" });
-});
+};
 
-// Get all sent invitations for a project
-router.get("/invitations/:projectId", verifyToken, async (req, res, next) => {
+const getProjectInvitation = async (req, res, next) => {
 	try {
 		const invitations = await Invitation.find({
 			"project.projectId": String(req.params.projectId),
@@ -170,27 +151,16 @@ router.get("/invitations/:projectId", verifyToken, async (req, res, next) => {
 		next(ApiError.recourseNotFound("No invitations found with that ID"));
 		return;
 	}
-});
+};
 
-// Remove user from project
-router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => {
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+const removeMember = async (req, res, next) => {
+	const project = await getProjectByID(req.params.projectId, next);
+	if (!project) return;
 
-	let user;
-	try {
-		user = await User.findById(req.params.userId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user found with that ID"));
-		return;
-	}
+	const userToRemove = await getUserByID(req.params.userId);
+	if (!userToRemove) return;
 
-	if (!isLeader(req.user._id, project)) {
+	if (!isLeader(req.userTokenPayload._id, project)) {
 		next(ApiError.forbiddenRequest("Permission denied"));
 		return;
 	}
@@ -198,7 +168,7 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 	try {
 		await Project.updateOne(
 			{ _id: project._id },
-			{ $pull: { users: { userId: user._id } } },
+			{ $pull: { users: { userId: userToRemove._id } } },
 			{ safe: true, multi: true }
 		);
 	} catch (error) {
@@ -208,7 +178,7 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 
 	try {
 		await User.updateOne(
-			{ _id: user._id },
+			{ _id: userToRemove._id },
 			{ $pull: { projects: { projectId: project._id } } },
 			{ safe: true, multi: true }
 		);
@@ -218,10 +188,9 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, async (req, res) => 
 	}
 
 	res.status(200).json({ message: "Successfully removed user" });
-});
+};
 
-// Change team member's role
-router.patch("/updateuserrole/:projectId/:userId", verifyToken, async (req, res) => {
+const changeMemberRole = async (req, res) => {
 	const userId = req.params.userId;
 	const newRole = req.body.role;
 	let project;
@@ -256,6 +225,14 @@ router.patch("/updateuserrole/:projectId/:userId", verifyToken, async (req, res)
 	}
 
 	res.status(200).json({ message: "Successfully changed member's role" });
-});
+};
 
-module.exports = router;
+module.exports = {
+	createProject: createProject,
+	getProject: getProject,
+	getMemberRole: getMemberRole,
+	deleteProject: deleteProject,
+	getProjectInvitation: getProjectInvitation,
+	removeMember: removeMember,
+	changeMemberRole: changeMemberRole,
+};
