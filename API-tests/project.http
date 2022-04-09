@@ -120,3 +120,18 @@ auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM
 # Get role
 GET http://localhost:9000/project/getrole/61f02319386b5447e5fc2583/61ec92e95c2f81354591007b
 auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWVjOTJlOTVjMmY4MTM1NDU5MTAwN2IiLCJpYXQiOjE2NDMxMjc4Njd9.1VsyV3LSTHpXi7UbmmGYksqRKjYmPcf1OZVYx8L8VAo
+
+
+
+###
+# Add requirement to project
+PATCH http://localhost:9000/projects/tasks/updatestatus/6240bef425bb730417ccc8e1/6240bef425bb730417ccc8e1
+auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjNmNWRlMmYyOGVkYWUzZjZjN2E5ZDgiLCJpYXQiOjE2NDkzNjA3ODYsImV4cCI6MTY0OTk2NTU4Nn0.lWLSydeCTd9xewTcIKPtBp5FCi0tgqsfefboKOtUD-w
+content-type: application/json
+
+{
+    "status": "In-Developmewlkfnwiniwdent"
+}
+
+
+

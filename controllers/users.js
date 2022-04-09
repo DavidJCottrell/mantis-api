@@ -108,11 +108,6 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-	if (req.body === undefined) {
-		next(ApiError.badRequest("No user details supplied"));
-		return;
-	}
-
 	// Validate
 	const { error } = loginValidation(req.body);
 	if (error) {

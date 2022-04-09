@@ -9,7 +9,6 @@ const {
 	removeTask,
 	updateSubTasks,
 	updateStatus,
-	updateResolution,
 	getSubTasks,
 	updateComments,
 	getComments,
@@ -31,9 +30,6 @@ router.patch("/updatesubtasks/:projectId/:taskId", verifyToken, updateSubTasks);
 
 // Update status
 router.patch("/updatestatus/:projectId/:taskId", verifyToken, updateStatus);
-
-// Update resolution
-router.patch("/updateresolution/:projectId/:taskId", verifyToken, updateResolution);
 
 // Get all the subtasks for a given project
 router.get("/subtasks/:projectId/:taskId", verifyToken, getSubTasks);

@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../server");
 const { expect } = require("chai");
 
-// Integration tests
+// Integration tests?
 
 let users = {
 	david: {
@@ -55,7 +55,7 @@ describe("User Route", () => {
 	describe("/user/login", () => {
 		describe("User's with correct details login successfully", () => {
 			// Test that each user logs in successfully
-			Object.keys(users).forEach(function (key, index) {
+			Object.keys(users).forEach((key, index) => {
 				it(`Return auth token and user details when logging in (${key})`, async () => {
 					const result = await request(app)
 						.post("/users/login")
@@ -68,8 +68,9 @@ describe("User Route", () => {
 				});
 			});
 		});
+
 		describe("User's with incorrect details fail to login", () => {
-			Object.keys(incorrectLoginData).forEach(function (key, index) {
+			Object.keys(incorrectLoginData).forEach((key, index) => {
 				it(`Return 404 when logging in with incorrect details (${key})`, async () => {
 					const result = await request(app).post("/users/login").send({
 						email: incorrectLoginData[key].email,
@@ -88,17 +89,19 @@ describe("User Route", () => {
 
 	describe("/user/projects", () => {
 		describe("User's with valid tokens can retrieve their projects", () => {
-			Object.keys(users).forEach(function (key, index) {
+			Object.keys(users).forEach((key, index) => {
 				it(`Return user's projects based on token ${key}`, async () => {
 					const result = await request(app)
 						.get("/users/projects")
 						.set("auth-token", users[key].token);
 
 					expect(result.statusCode).to.equal(200);
-
-					// Needs more...
+					expect(result).to.have.property("body");
+					expect(result.body).to.be.an("array");
 				});
 			});
 		});
 	});
+
+    // describe("")
 });

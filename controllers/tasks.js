@@ -2,7 +2,7 @@ const Project = require("../models/Project");
 const User = require("../models/User");
 
 const { isLeader } = require("../utilities/auth.js");
-const { createTaskValidation } = require("../utilities/validation.js");
+const { createTaskValidation, statusUpdateValidation } = require("../utilities/validation.js");
 const { ApiError } = require("../utilities/error");
 const { getProjectByID } = require("./common");
 
@@ -133,33 +133,6 @@ const updateSubTasks = async (req, res, next) => {
 	res.status(201).json({ message: "Successfully updated subtasks" });
 };
 
-const updateStatus = async (req, res, next) => {
-	const taskId = req.params.taskId;
-	const newStatus = req.body.status;
-
-	const project = await getProjectByID(req.params.projectId);
-	if (!project) return;
-
-	let tasks = project.tasks;
-	let updatedTask;
-
-	for (let i = 0; i < tasks.length; i++) {
-		if (String(tasks[i]._id) === String(taskId)) {
-			tasks[i].status = newStatus;
-			updatedTask = tasks[i];
-		}
-	}
-
-	try {
-		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
-	} catch (error) {
-		next(ApiError.internal("Could not update project's status"));
-		return;
-	}
-
-	res.status(201).json(updatedTask);
-};
-
 const getSubTasks = async (req, res, next) => {
 	const taskId = req.params.taskId;
 
@@ -207,10 +180,17 @@ const getComments = async (req, res, next) => {
 	next(ApiError.recourseNotFound("No task found with that ID"));
 };
 
-// Update resolution
-const updateResolution = async (req, res, next) => {
+const updateStatus = async (req, res, next) => {
+	// Validate
+	const { error } = statusUpdateValidation(req.body);
+	if (error) {
+		next(ApiError.badRequest("Invalid status"));
+		return;
+	}
+
 	const taskId = req.params.taskId;
-	const newResolution = req.body.resolution;
+	const newStatus = req.body.status;
+	const newResolution = newStatus === "Resolved" ? "Resolved" : "Un-Resolved";
 
 	const project = await getProjectByID(req.params.projectId);
 	if (!project) return;
@@ -218,14 +198,22 @@ const updateResolution = async (req, res, next) => {
 	let tasks = project.tasks;
 	let updatedTask;
 
-	for (let i = 0; i < tasks.length; i++)
+	for (let i = 0; i < tasks.length; i++) {
 		if (String(tasks[i]._id) === String(taskId)) {
+			tasks[i].status = newStatus;
 			tasks[i].resolution = newResolution;
 			updatedTask = tasks[i];
 		}
+	}
 
-	await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
-	res.status(201).json(updatedTask);
+	try {
+		await Project.updateOne({ _id: project._id }, { $set: { tasks: tasks } });
+	} catch (error) {
+		next(ApiError.internal("Could not update project's status"));
+		return;
+	}
+
+	res.status(200).json(updatedTask);
 };
 
 module.exports = {
@@ -234,7 +222,6 @@ module.exports = {
 	removeTask: removeTask,
 	updateSubTasks: updateSubTasks,
 	updateStatus: updateStatus,
-	updateResolution: updateResolution,
 	getSubTasks: getSubTasks,
 	updateComments: updateComments,
 	getComments: getComments,

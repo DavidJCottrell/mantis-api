@@ -9,7 +9,7 @@ const invitationsRoute = require("./routes/invitations");
 
 const { apiErrorHandler } = require("./utilities/error");
 
-module.exports = function (app) {
+module.exports = (app) => {
 	app.use(
 		express.json(),
 		cors({
@@ -29,6 +29,6 @@ module.exports = function (app) {
 	// Routes relating to invitiation functions
 	app.use("/invitations", invitationsRoute);
 
-	// *** This must be last in the middleware stack ***
+	// *** Must be last in the middleware stack ***
 	app.use(apiErrorHandler);
 };

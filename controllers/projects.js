@@ -77,11 +77,8 @@ const getProject = async (req, res, next) => {
 		return;
 	}
 
-	const role = getRole(req.userTokenPayload._id, project);
-	if (role === null) {
-		next(ApiError.internal("Error getting role"));
-		return;
-	}
+	const role = getRole(req.userTokenPayload._id, project, next);
+	if (!role) return;
 
 	res.status(200).json({ project: project, role: role });
 };
@@ -103,11 +100,8 @@ const getMemberRole = async (req, res, next) => {
 		return;
 	}
 
-	let role = getRole(user._id, project);
-	if (role === null) {
-		next(ApiError.internal("Error getting role"));
-		return;
-	}
+	let role = getRole(user._id, project, next);
+	if (!role) return;
 
 	return res.status(200).json({ role: role });
 };
@@ -115,6 +109,11 @@ const getMemberRole = async (req, res, next) => {
 const deleteProject = async (req, res, next) => {
 	const project = await getProjectByID(req.params.projectId, next);
 	if (project === undefined) return;
+
+	if (!isLeader(req.userTokenPayload._id, project)) {
+		next(ApiError.forbiddenRequest("Permission denied"));
+		return;
+	}
 
 	try {
 		// Remove project from each member's "projects" list

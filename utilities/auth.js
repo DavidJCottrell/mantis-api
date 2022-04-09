@@ -23,10 +23,13 @@ const verifyToken = async (req, res, next) => {
 };
 
 // Get the role the user has for the specified project
-const getRole = (userId, project) => {
+const getRole = (userId, project, next) => {
+	if (!project) {
+		next(ApiError.recourseNotFound("No project found with that ID"));
+		return;
+	}
 	for (const projectMember of project.users)
 		if (String(userId) === String(projectMember.userId)) return projectMember.role;
-	return null;
 };
 
 const isLeader = async (userId, project) => {

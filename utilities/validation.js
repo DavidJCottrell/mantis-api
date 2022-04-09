@@ -21,6 +21,15 @@ const loginValidation = (data) => {
 	return schema.validate(data);
 };
 
+const statusUpdateValidation = (data) => {
+	const schema = Joi.object({
+		status: Joi.string()
+			.valid("In Development", "Testing", "In Review", "Ready to Merge", "Resolved")
+			.required(),
+	});
+	return schema.validate(data);
+};
+
 const createInviteValidation = (data) => {
 	const schema = Joi.object({
 		inviter: Joi.object({
@@ -95,9 +104,13 @@ const addRequirementValidation = (data) => {
 	return schema.validate(data);
 };
 
-module.exports.loginValidation = loginValidation;
-module.exports.createProjectValidation = createProjectValidation;
-module.exports.createTaskValidation = createTaskValidation;
-module.exports.registerValidation = registerValidation;
-module.exports.createInviteValidation = createInviteValidation;
-module.exports.addRequirementValidation = addRequirementValidation;
+module.exports = {
+	loginValidation: loginValidation,
+	createProjectValidation: createProjectValidation,
+	createTaskValidation: createTaskValidation,
+	registerValidation: registerValidation,
+	createInviteValidation: createInviteValidation,
+	addRequirementValidation: addRequirementValidation,
+	addRequirementValidation: addRequirementValidation,
+	statusUpdateValidation: statusUpdateValidation,
+};
