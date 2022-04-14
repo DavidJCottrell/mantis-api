@@ -1,7 +1,6 @@
 // Models
 const Project = require("../models/Project");
 const User = require("../models/User");
-const Invitation = require("../models/Invitation");
 
 // Validation
 const { registerValidation, loginValidation } = require("../utilities/validation.js");
@@ -11,7 +10,12 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const { ApiError } = require("../utilities/error");
-const { getUserProjects, getUserByID, getUserInvitations } = require("../controllers/common.js");
+const {
+	getUserProjects,
+	getUserByID,
+	getUserInvitations,
+	generateUsername,
+} = require("../controllers/common.js");
 
 const getProjects = async (req, res, next) => {
 	const userId = req.userTokenPayload._id;
@@ -107,6 +111,11 @@ const register = async (req, res, next) => {
 	res.status(201).json({ token: token, user: user });
 };
 
+const removeUser = async (req, res, next) => {
+	await User.deleteOne({ _id: req.userTokenPayload._id });
+	res.status(200).json({ message: "Successfully deleted user" });
+};
+
 const login = async (req, res, next) => {
 	// Validate
 	const { error } = loginValidation(req.body);
@@ -148,4 +157,5 @@ module.exports = {
 	getTasks: getTasks,
 	register: register,
 	login: login,
+	removeUser: removeUser,
 };

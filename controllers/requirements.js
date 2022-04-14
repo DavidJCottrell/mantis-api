@@ -20,10 +20,7 @@ const addRequirement = async (req, res, next) => {
 		return;
 	}
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	try {
 		await Project.updateOne({ _id: project._id }, { $push: { requirements: [req.body] } });
@@ -47,10 +44,7 @@ const updateRequirement = async (req, res, next) => {
 		return;
 	}
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	let requirements = [];
 	for (let req of project.requirements)
@@ -77,10 +71,7 @@ const removeRequirement = async (req, res, next) => {
 		return;
 	}
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	let requirement;
 	for (const req of project.requirements) if (req.index === index) requirement = req;

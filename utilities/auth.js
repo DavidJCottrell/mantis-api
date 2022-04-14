@@ -32,9 +32,11 @@ const getRole = (userId, project, next) => {
 		if (String(userId) === String(projectMember.userId)) return projectMember.role;
 };
 
-const isLeader = async (userId, project) => {
-	if (getRole(userId, project) !== "Team Leader") return false;
-	else return true;
+const isLeader = async (userId, project, next) => {
+	if (getRole(userId, project) !== "Team Leader") {
+		next(ApiError.forbiddenRequest("Permission denied"));
+		return false;
+	} else return true;
 };
 
 module.exports = {

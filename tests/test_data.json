@@ -1,0 +1,24 @@
+{
+	"correctUsers": {
+		"David": {
+			"email": "david@gmail.com",
+			"password": "password1",
+			"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjNmNWRiNmYyOGVkYWUzZjZjN2E5YzEiLCJpYXQiOjE2NDk3MDcwMzcsImV4cCI6MTY1MDMxMTgzN30.OWe3dq6d25OGaDPP_ICE6FKQuzmePM2qOrKEDqigzRI"
+		},
+		"John": {
+			"email": "john@gmail.com",
+			"password": "password2",
+			"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjNmNWRlMmYyOGVkYWUzZjZjN2E5ZDgiLCJpYXQiOjE2NDk3MDcwMzcsImV4cCI6MTY1MDMxMTgzN30.cLXGk_B1iWltnmDogA0JzL9OrP8290BjeO-LtqDR8p8"
+		},
+		"Fred": {
+			"email": "fred@gmail.com",
+			"password": "password3",
+			"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjNmNWRmNmYyOGVkYWUzZjZjN2E5ZTIiLCJpYXQiOjE2NDk3MDcwMzcsImV4cCI6MTY1MDMxMTgzN30.EYCIaUmf7kyOWfpImA6XJ6alhiVUFBJ1H6jf9kA8Z6s"
+		}
+	},
+	"incorrectUsers": {
+		"James": { "email": "dav42id@gmail.com", "password": "pas2sword152" },
+		"Eric": { "email": "notjohn@gmail.com", "password": "password2" },
+		"Ben": { "email": "fred@gmail.com", "password": "Pass!word3" }
+	}
+}

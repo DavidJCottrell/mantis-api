@@ -146,10 +146,7 @@ const addInvitation = async (req, res, next) => {
 	}
 
 	// User must be a Team Leader in order to create project invitations
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	// Check user doesnt already exist in project
 	for (existingUser of project.users) {

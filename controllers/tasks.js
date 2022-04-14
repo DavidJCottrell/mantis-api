@@ -20,8 +20,7 @@ const getTask = async (req, res, next) => {
 };
 
 const addTask = async (req, res, next) => {
-	// Validate
-	const { error } = createTaskValidation(req.body);
+	const { error } = createTaskValidation(req.body); // Validate
 	if (error) {
 		next(ApiError.badRequest(error.details[0].message));
 		return;
@@ -29,11 +28,7 @@ const addTask = async (req, res, next) => {
 
 	const project = await getProjectByID(req.params.projectId);
 	if (!project) return;
-
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	let assignees = [];
 	try {
@@ -61,14 +56,12 @@ const addTask = async (req, res, next) => {
 	}
 
 	req.body.assignees = assignees;
-
 	try {
 		await Project.updateOne({ _id: project._id }, { $push: { tasks: [req.body] } });
 	} catch (error) {
 		next(ApiError.internal("Error adding task to project"));
 		return;
 	}
-
 	res.status(201).json({ message: "Successfully added task to project" });
 };
 
@@ -78,10 +71,7 @@ const removeTask = async (req, res, next) => {
 	const project = await getProjectByID(req.params.projectId);
 	if (!project) return;
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	// Get the task to remove
 	let taskToRemove;
@@ -130,7 +120,7 @@ const updateSubTasks = async (req, res, next) => {
 		return;
 	}
 
-	res.status(201).json({ message: "Successfully updated subtasks" });
+	res.status(200).json({ message: "Successfully updated subtasks" });
 };
 
 const getSubTasks = async (req, res, next) => {
@@ -163,8 +153,7 @@ const updateComments = async (req, res, next) => {
 		next(ApiError.internal("Could not update comments"));
 		return;
 	}
-
-	res.status(201).json({ message: "Successfully updated comments" });
+	res.status(200).json({ message: "Successfully updated comments" });
 };
 
 const getComments = async (req, res, next) => {

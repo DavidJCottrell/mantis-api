@@ -5,7 +5,8 @@
 	"scripts": {
 		"start": "nodemon server.js",
 		"killnode": "killall -9 node",
-		"test": "mocha 'tests' --recursive --timeout 10000"
+		"oldtest": "mocha 'tests' --recursive --timeout 10000",
+		"test": "mocha ./tests/users.test.js ./tests/projects.test.js --timeout 10000"
 	},
 	"author": "David Cottrell",
 	"devDependencies": {

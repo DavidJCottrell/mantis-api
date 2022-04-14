@@ -9,13 +9,8 @@ const { createProjectValidation } = require("../utilities/validation.js");
 const { getUserProjects, getProjectByID, getUserByID } = require("./common.js");
 
 const createProject = async (req, res, next) => {
-	let user;
-	try {
-		user = await User.findById(req.userTokenPayload._id);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const user = await getUserByID(req.userTokenPayload._id);
+	if (!user) return;
 
 	const newProject = {
 		title: req.body.title,
@@ -48,13 +43,8 @@ const createProject = async (req, res, next) => {
 	await user.save();
 
 	// Get updated list of user's projects
-	let userProjects;
-	try {
-		userProjects = await getUserProjects(user.projects, user.id);
-	} catch (error) {
-		next(ApiError.internal("Error getting user's projects"));
-		return;
-	}
+	const userProjects = await getUserProjects(user.projects, user.id);
+	if (!userProjects) return;
 
 	// Return updated list of projects
 	res.status(201).json(userProjects);
@@ -84,21 +74,11 @@ const getProject = async (req, res, next) => {
 };
 
 const getMemberRole = async (req, res, next) => {
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId, next);
+	if (!project) return;
 
-	let user;
-	try {
-		user = await User.findById(req.userTokenPayload._id);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No user found with that ID"));
-		return;
-	}
+	const user = await getUserByID(req.userTokenPayload._id);
+	if (!user) return;
 
 	let role = getRole(user._id, project, next);
 	if (!role) return;
@@ -110,10 +90,7 @@ const deleteProject = async (req, res, next) => {
 	const project = await getProjectByID(req.params.projectId, next);
 	if (project === undefined) return;
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	try {
 		// Remove project from each member's "projects" list
@@ -159,10 +136,7 @@ const removeMember = async (req, res, next) => {
 	const userToRemove = await getUserByID(req.params.userId);
 	if (!userToRemove) return;
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	try {
 		await Project.updateOne(
@@ -192,18 +166,11 @@ const removeMember = async (req, res, next) => {
 const changeMemberRole = async (req, res) => {
 	const userId = req.params.userId;
 	const newRole = req.body.role;
-	let project;
-	try {
-		project = await Project.findById(req.params.projectId);
-	} catch (error) {
-		next(ApiError.recourseNotFound("No project found with that ID"));
-		return;
-	}
 
-	if (!isLeader(req.userTokenPayload._id, project)) {
-		next(ApiError.forbiddenRequest("Permission denied"));
-		return;
-	}
+	const project = await getProjectByID(req.params.projectId, next);
+	if (!project) return;
+
+	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	let newUsers = [];
 	for (let i = 0; i < project.users.length; i++) {
