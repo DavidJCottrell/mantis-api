@@ -56,13 +56,16 @@ const addTask = async (req, res, next) => {
 	}
 
 	req.body.assignees = assignees;
+
 	try {
 		await Project.updateOne({ _id: project._id }, { $push: { tasks: [req.body] } });
 	} catch (error) {
 		next(ApiError.internal("Error adding task to project"));
 		return;
 	}
-	res.status(201).json({ message: "Successfully added task to project" });
+	const updatedProject = await getProjectByID(req.params.projectId);
+
+	res.status(201).json({ newTaskId: updatedProject.tasks[updatedProject.tasks.length - 1]._id });
 };
 
 const removeTask = async (req, res, next) => {
@@ -99,7 +102,7 @@ const removeTask = async (req, res, next) => {
 		return;
 	}
 
-	res.status(201).json({ message: "Successfully deleted task" });
+	res.status(200).json({ message: "Successfully deleted task" });
 };
 
 const updateSubTasks = async (req, res, next) => {

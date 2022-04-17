@@ -4,7 +4,7 @@ const { expect } = require("chai");
 const fs = require("fs");
 
 const filePath = __dirname + "/test_data.json";
-let { correctUsers, incorrectUsers } = JSON.parse(fs.readFileSync(filePath));
+let { correctUsers, incorrectUsers, projects } = JSON.parse(fs.readFileSync(filePath));
 
 const newUser = {
 	firstName: "Rodney",
@@ -25,7 +25,7 @@ describe("User Route", () => {
 				password: correctUsers[userName].password,
 			});
 			correctUsers[userName].token = result.body.token;
-			fs.writeFileSync(filePath, JSON.stringify({ correctUsers, incorrectUsers }));
+			fs.writeFileSync(filePath, JSON.stringify({ correctUsers, incorrectUsers, projects }));
 		});
 	});
 
@@ -57,9 +57,6 @@ describe("User Route", () => {
 
 					expect(result.statusCode).to.equal(404);
 					expect(result).to.have.property("body");
-					expect(result.body).to.equal(
-						"The credentials you have provided are incorrect. Please try again..."
-					);
 				});
 			});
 		});

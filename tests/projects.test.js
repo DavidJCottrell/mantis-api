@@ -4,7 +4,7 @@ const { expect } = require("chai");
 const fs = require("fs");
 
 const filePath = __dirname + "/test_data.json";
-let { correctUsers } = JSON.parse(fs.readFileSync(filePath));
+let { correctUsers, projects } = JSON.parse(fs.readFileSync(filePath));
 
 const newProject = {
 	title: "Example Project",
@@ -17,7 +17,7 @@ describe("Project Route", () => {
 	describe("/projects/getproject", () => {
 		it(`Returns the project with a given ID if the user belongs to it`, async () => {
 			const result = await request(app)
-				.get("/projects/getproject/6240bef425bb730417ccc8e1")
+				.get("/projects/getproject/" + projects["New Project"].id)
 				.set("auth-token", correctUsers.David.token);
 			expect(result.statusCode).to.equal(200);
 			expect(result).to.have.property("body");
@@ -28,7 +28,7 @@ describe("Project Route", () => {
 	describe("/projects/getrole", () => {
 		it(`Returns the role of the user within the given project`, async () => {
 			const result = await request(app)
-				.get("/projects/getrole/6240bef425bb730417ccc8e1")
+				.get("/projects/getrole/" + projects["New Project"].id)
 				.set("auth-token", correctUsers.David.token);
 			expect(result.statusCode).to.equal(200);
 			expect(result).to.have.property("body");
@@ -64,11 +64,12 @@ describe("Project Route", () => {
 	describe("/projects/invitations", () => {
 		it(`Returns all invitations for a project`, async () => {
 			const result = await request(app)
-				.get("/projects/invitations/6252b01e33948c54b9b908dc")
+				.get("/projects/invitations/" + projects["New Project 2"].id)
 				.set("auth-token", correctUsers.David.token);
 			expect(result.statusCode).to.equal(200);
 			expect(result).to.have.property("body");
-			expect(result.body).to.be.an("array");
+			expect(result.body).to.have.property("invitations");
+			expect(result.body.invitations).to.be.an("array");
 		});
 	});
 });
