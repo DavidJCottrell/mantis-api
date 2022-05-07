@@ -26,15 +26,15 @@ const getProjects = async (req, res, next) => {
 
 	// Get the project data from the projectIDs
 	let userProjects = await getUserProjects(projectIDs, userId, next);
-
-	res.status(200).json(userProjects);
+	// console.log(userProjects[0].project.tasks);
+	res.status(200).json({ projects: userProjects });
 };
 
 const getInvitations = async (req, res, next) => {
 	const invitations = await getUserInvitations(req.userTokenPayload._id, next);
 	if (!invitations) return;
 
-	res.status(200).json(invitations);
+	res.status(200).json({ invitations: invitations });
 };
 
 const getTasks = async (req, res, next) => {
@@ -64,7 +64,7 @@ const getTasks = async (req, res, next) => {
 		next(ApiError.internal("Something went wrong"));
 		return;
 	}
-	res.status(200).json(assignedTasks);
+	res.status(200).json({ tasks: assignedTasks });
 };
 
 const register = async (req, res, next) => {
@@ -134,7 +134,7 @@ const login = async (req, res, next) => {
 	user = await User.findOne({ email: email.toLowerCase() });
 
 	if (user === null) {
-		next(ApiError.recourseNotFound(badCredentialsMsg));
+		next(ApiError.invalidCredentials(badCredentialsMsg));
 		return;
 	}
 
@@ -142,13 +142,18 @@ const login = async (req, res, next) => {
 	const password = req.body.password;
 	const validPassword = await bcrypt.compare(password, user.password);
 	if (!validPassword) {
-		next(ApiError.recourseNotFound(badCredentialsMsg));
+		next(ApiError.invalidCredentials(badCredentialsMsg));
 		return;
 	}
 
 	// Create jwt
 	const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "7d" });
 	res.status(200).json({ token: token, user: user });
+};
+
+const test = async (req, res, next) => {
+	console.log(req.body);
+	res.status(200).json({ msg: "success" });
 };
 
 module.exports = {
@@ -158,4 +163,5 @@ module.exports = {
 	register: register,
 	login: login,
 	removeUser: removeUser,
+	test: test,
 };

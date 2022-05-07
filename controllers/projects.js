@@ -47,7 +47,7 @@ const createProject = async (req, res, next) => {
 	if (!userProjects) return;
 
 	// Return updated list of projects
-	res.status(201).json(userProjects);
+	res.status(201).json({ projects: userProjects });
 };
 
 const getProject = async (req, res, next) => {

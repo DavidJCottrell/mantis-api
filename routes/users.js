@@ -8,6 +8,7 @@ const {
 	register,
 	login,
 	removeUser,
+	test,
 } = require("../controllers/users");
 
 // Prefix: /users
@@ -29,5 +30,8 @@ router.delete("/remove", verifyToken, removeUser);
 
 // Login
 router.post("/login", login);
+
+// Test
+router.post("/test", test);
 
 module.exports = router;
