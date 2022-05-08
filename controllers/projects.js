@@ -163,7 +163,7 @@ const removeMember = async (req, res, next) => {
 	res.status(200).json({ message: "Successfully removed user" });
 };
 
-const changeMemberRole = async (req, res) => {
+const changeMemberRole = async (req, res, next) => {
 	const userId = req.params.userId;
 	const newRole = req.body.role;
 
