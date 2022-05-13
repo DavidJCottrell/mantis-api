@@ -151,9 +151,120 @@ const login = async (req, res, next) => {
 	res.status(200).json({ token: token, user: user });
 };
 
-const getFollowedTaskComments = async (req, res, next) => {
-	await User.deleteOne({ _id: req.userTokenPayload._id });
-	res.status(200).json({ message: "Successfully deleted user" });
+const followTask = async (req, res, next) => {
+	const userId = req.userTokenPayload._id;
+	const taskToFollowId = req.params.taskId;
+	const projectId = req.params.projectId;
+
+	// Find the project with the ID supplied
+	let project;
+	try {
+		project = await Project.findById(projectId);
+	} catch (error) {
+		next(ApiError.recourseNotFound("No project found with that ID"));
+		return;
+	}
+
+	// Find the project with the ID supplied
+	const user = await User.findById(userId);
+
+	// Check if user is already following that task
+	for ({ taskId } of user.followedTasks) {
+		if (String(taskToFollowId) === String(taskId)) {
+			next(ApiError.badRequest("This user is already following this task"));
+			return;
+		}
+	}
+
+	try {
+		// Add task id to user's followed tasks
+		await User.updateOne(
+			{ _id: userId },
+			{ $push: { followedTasks: [{ taskId: taskToFollowId, projectId: projectId }] } }
+		);
+	} catch (error) {
+		next(ApiError.internal("Error following task"));
+		return;
+	}
+
+	let latestComment;
+
+	// Get date of latest comment for that task (if there are any)
+	for (task of project.tasks)
+		if (String(task._id) === String(taskToFollowId)) {
+			latestComment = task.comments[task.comments.length - 1];
+			if (latestComment !== undefined) latestComment = latestComment.dateAdded;
+		}
+
+	// Return date of latest comment
+	res.status(201).json({ latestComment: latestComment });
+};
+
+const unfollowTask = async (req, res, next) => {
+	const userId = req.userTokenPayload._id;
+	const taskToUnfollowId = req.params.taskId;
+
+	// Find the project with the ID supplied
+	const user = await User.findById(userId);
+
+	// Check if user is following that task
+	for ({ taskId } of user.followedTasks) {
+		if (String(taskToUnfollowId) === String(taskId)) {
+			try {
+				await User.updateOne(
+					{ _id: userId },
+					{ $pull: { followedTasks: { taskId: taskToUnfollowId } } },
+					{ safe: true, multi: true }
+				);
+				res.status(200).json({ message: "Successfully unfollowed task" });
+				return;
+			} catch (error) {
+				next(ApiError.internal("Could not unfollow task"));
+				return;
+			}
+		}
+	}
+
+	next(ApiError.badRequest("User is not following this task"));
+	return;
+};
+
+const getLatestFollowedTaskComments = async (req, res, next) => {
+	const deviceCurrent = req.body.localFollowedTaskComments;
+
+	let tasksWithNewComments = [];
+
+	for (const followedTask of deviceCurrent) {
+		// Find the project with the ID supplied
+		let project;
+		try {
+			project = await Project.findById(followedTask.projectId);
+		} catch (error) {
+			next(ApiError.recourseNotFound("No project found with that ID"));
+			return;
+		}
+
+		let latestComment;
+		// Get date of latest comment for that task (if there are any)
+		for (task of project.tasks)
+			if (String(task._id) === String(followedTask.taskId)) {
+				latestComment = task.comments[task.comments.length - 1];
+				if (latestComment !== undefined) {
+					remoteLatestCommentDate = new Date(latestComment.dateAdded);
+					localLatestCommentDate = new Date(followedTask.latestCommentDate);
+
+					if (remoteLatestCommentDate > localLatestCommentDate)
+						tasksWithNewComments.push({
+							taskId: task._id,
+							projectId: project._id,
+							latestCommentDate: remoteLatestCommentDate,
+						});
+				}
+			}
+	}
+
+	res.status(200).json({ newComments: tasksWithNewComments });
+	return;
 };
 
 module.exports = {
@@ -163,4 +274,7 @@ module.exports = {
 	register: register,
 	login: login,
 	removeUser: removeUser,
+	followTask: followTask,
+	unfollowTask: unfollowTask,
+	getLatestFollowedTaskComments: getLatestFollowedTaskComments,
 };

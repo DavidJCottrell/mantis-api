@@ -42,6 +42,7 @@ const UserSchema = mongoose.Schema({
 	followedTasks: [
 		{
 			taskId: { type: mongoose.Schema.Types.ObjectId, required: true },
+			projectId: { type: mongoose.Schema.Types.ObjectId, required: true },
 			_id: false,
 		},
 	],
