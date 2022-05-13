@@ -143,8 +143,6 @@ const updateComments = async (req, res, next) => {
 	const taskId = req.params.taskId;
 	const newComments = req.body;
 
-	console.log(newComments);
-
 	const project = await getProjectByID(req.params.projectId);
 	if (!project) return;
 

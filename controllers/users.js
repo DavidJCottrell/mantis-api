@@ -151,9 +151,9 @@ const login = async (req, res, next) => {
 	res.status(200).json({ token: token, user: user });
 };
 
-const test = async (req, res, next) => {
-	console.log(req.body);
-	res.status(200).json({ msg: "success" });
+const getFollowedTaskComments = async (req, res, next) => {
+	await User.deleteOne({ _id: req.userTokenPayload._id });
+	res.status(200).json({ message: "Successfully deleted user" });
 };
 
 module.exports = {
@@ -163,5 +163,4 @@ module.exports = {
 	register: register,
 	login: login,
 	removeUser: removeUser,
-	test: test,
 };

@@ -39,11 +39,12 @@ const UserSchema = mongoose.Schema({
 		type: Date,
 		default: Date.now,
 	},
+	followedTasks: [
+		{
+			taskId: { type: mongoose.Schema.Types.ObjectId, required: true },
+			_id: false,
+		},
+	],
 });
 
 module.exports = mongoose.model("users", UserSchema);
-
-
-
-
-
