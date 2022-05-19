@@ -12,6 +12,7 @@ const {
 	getProjectInvitation,
 	removeMember,
 	changeMemberRole,
+	leaveProject,
 } = require("../controllers/projects");
 
 // Create project
@@ -34,5 +35,8 @@ router.patch("/removeuser/:projectId/:userId", verifyToken, removeMember);
 
 // Change team member's role
 router.patch("/updateuserrole/:projectId/:userId", verifyToken, changeMemberRole);
+
+// Leave project
+router.patch("/leave/:projectId", verifyToken, leaveProject);
 
 module.exports = router;

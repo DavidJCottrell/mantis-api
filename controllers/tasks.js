@@ -156,7 +156,9 @@ const updateComments = async (req, res, next) => {
 		next(ApiError.internal("Could not update comments"));
 		return;
 	}
-	res.status(200).json({ message: "Successfully updated comments" });
+
+	for (const task of project.tasks)
+		if (String(task._id) === String(taskId)) return res.status(200).json(task.comments);
 };
 
 const getComments = async (req, res, next) => {

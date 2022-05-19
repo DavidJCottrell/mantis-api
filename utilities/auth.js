@@ -6,19 +6,22 @@ const { ApiError } = require("../utilities/error");
 const verifyToken = async (req, res, next) => {
 	const token = req.header("auth-token");
 	if (!token) {
-		next(ApiError.invalidCredentials("No token provided"));
+		next(ApiError.forbiddenRequest("No token provided"));
 		return;
 	}
-
-	const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+	let verified;
+	try {
+		verified = jwt.verify(token, process.env.TOKEN_SECRET);
+	} catch (error) {
+		next(ApiError.forbiddenRequest("Invalid token"));
+		return;
+	}
 	req.userTokenPayload = verified;
-
 	const user = await User.findById(req.userTokenPayload._id);
 	if (!user) {
 		next(ApiError.recourseNotFound("No user found"));
 		return;
 	}
-
 	next();
 };
 

@@ -8,6 +8,10 @@ const {
 	register,
 	login,
 	removeUser,
+	followTask,
+	unfollowTask,
+	getLatestFollowedTaskComments,
+	getUser,
 } = require("../controllers/users");
 
 // Prefix: /users
@@ -29,5 +33,17 @@ router.delete("/remove", verifyToken, removeUser);
 
 // Login
 router.post("/login", login);
+
+// Add task to the user's list of followed tasks
+router.patch("/followtask/:projectId/:taskId", verifyToken, followTask);
+
+// Remove task from the user's list of followed tasks
+router.delete("/unfollowtask/:projectId/:taskId", verifyToken, unfollowTask);
+
+// Get latest comment for each followed task
+router.post("/getlatestfollowedtaskcomments", verifyToken, getLatestFollowedTaskComments);
+
+// Get user details with token
+router.get("/getuser", verifyToken, getUser);
 
 module.exports = router;

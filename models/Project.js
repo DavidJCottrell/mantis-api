@@ -41,6 +41,7 @@ var TaskSchema = mongoose.Schema({
 			authorId: { type: mongoose.SchemaTypes.ObjectId, required: true },
 			content: { type: String, required: true },
 			taggedUsers: [mongoose.Schema.Types.ObjectId],
+			dateAdded: { type: String, required: true },
 		},
 	],
 	subtasks: {
