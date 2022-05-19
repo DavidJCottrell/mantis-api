@@ -163,8 +163,6 @@ const removeMember = async (req, res, next) => {
 	res.status(200).json({ message: "Successfully removed user" });
 };
 
-<<<<<<< HEAD
-=======
 const leaveProject = async (req, res, next) => {
 	// Get requesting user
 	const user = await getUserByID(req.userTokenPayload._id);
@@ -201,7 +199,6 @@ const leaveProject = async (req, res, next) => {
 	res.status(200).json({ message: "Successfully left project" });
 };
 
->>>>>>> post-submission
 const changeMemberRole = async (req, res, next) => {
 	const userId = req.params.userId;
 	const newRole = req.body.role;
