@@ -11,6 +11,7 @@ const {
 	followTask,
 	unfollowTask,
 	getLatestFollowedTaskComments,
+	getUser,
 } = require("../controllers/users");
 
 // Prefix: /users
@@ -41,5 +42,8 @@ router.delete("/unfollowtask/:projectId/:taskId", verifyToken, unfollowTask);
 
 // Get latest comment for each followed task
 router.post("/getlatestfollowedtaskcomments", verifyToken, getLatestFollowedTaskComments);
+
+// Get user details with token
+router.get("/getuser", verifyToken, getUser);
 
 module.exports = router;

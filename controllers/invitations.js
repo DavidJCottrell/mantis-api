@@ -149,17 +149,27 @@ const addInvitation = async (req, res, next) => {
 	if (!isLeader(req.userTokenPayload._id, project, next)) return;
 
 	// Check user doesnt already exist in project
-	for (existingUser of project.users) {
+	for (const existingUser of project.users) {
 		if (String(invitedUser._id) === String(existingUser.userId)) {
 			next(ApiError.badRequest("This user is already a member of this project"));
 			return;
 		}
 	}
 
-	if (await Invitation.findOne({ "invitee.userId": invitedUser._id })) {
-		next(ApiError.badRequest("This user has already been invited"));
-		return;
+	const existingInvitations = await Invitation.find({ "invitee.userId": invitedUser._id });
+
+	for (const invitation of existingInvitations) {
+		console.log(invitation);
+		if (String(invitation.project.projectId) === String(project._id)) {
+			next(ApiError.badRequest("This user has already been invited"));
+			return;
+		}
 	}
+
+	// if (await Invitation.findOne({ "invitee.userId": invitedUser._id })) {
+	// 	next(ApiError.badRequest("This user has already been invited"));
+	// 	return;
+	// }
 
 	// Create object for invited user's details
 	const invitee = {

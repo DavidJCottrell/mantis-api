@@ -37,6 +37,11 @@ const getInvitations = async (req, res, next) => {
 	res.status(200).json({ invitations: invitations });
 };
 
+const getUser = async (req, res, next) => {
+	const user = await getUserByID(req.userTokenPayload._id, next);
+	res.status(200).json({ user: user });
+};
+
 const getTasks = async (req, res, next) => {
 	// Get the projectIDs for the project(s) the user belongs to
 	const { projects: projectIDs } = await getUserByID(req.userTokenPayload._id, next);
@@ -171,7 +176,7 @@ const followTask = async (req, res, next) => {
 	// Check if user is already following that task
 	for ({ taskId } of user.followedTasks) {
 		if (String(taskToFollowId) === String(taskId)) {
-			next(ApiError.badRequest("This user is already following this task"));
+			next(ApiError.badRequest("You are already following this task"));
 			return;
 		}
 	}
@@ -190,11 +195,14 @@ const followTask = async (req, res, next) => {
 	let latestComment;
 
 	// Get date of latest comment for that task (if there are any)
-	for (task of project.tasks)
+	for (task of project.tasks) {
 		if (String(task._id) === String(taskToFollowId)) {
 			latestComment = task.comments[task.comments.length - 1];
 			if (latestComment !== undefined) latestComment = latestComment.dateAdded;
 		}
+	}
+
+	console.log(latestComment);
 
 	// Return date of latest comment
 	res.status(201).json({ latestComment: latestComment });
@@ -277,4 +285,5 @@ module.exports = {
 	followTask: followTask,
 	unfollowTask: unfollowTask,
 	getLatestFollowedTaskComments: getLatestFollowedTaskComments,
+	getUser: getUser,
 };

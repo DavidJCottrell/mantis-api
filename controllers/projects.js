@@ -163,7 +163,43 @@ const removeMember = async (req, res, next) => {
 	res.status(200).json({ message: "Successfully removed user" });
 };
 
-const changeMemberRole = async (req, res) => {
+const leaveProject = async (req, res, next) => {
+	// Get requesting user
+	const user = await getUserByID(req.userTokenPayload._id);
+	if (!user) return;
+
+	// Find project to be left
+	const project = await getProjectByID(req.params.projectId, next);
+	if (!project) return;
+
+	// Remove user from project
+	try {
+		await Project.updateOne(
+			{ _id: project._id },
+			{ $pull: { users: { userId: user._id } } },
+			{ safe: true, multi: true }
+		);
+	} catch (error) {
+		next(ApiError.internal("Could not remove user from project"));
+		return;
+	}
+
+	// Remove project from user
+	try {
+		await User.updateOne(
+			{ _id: user._id },
+			{ $pull: { projects: { projectId: project._id } } },
+			{ safe: true, multi: true }
+		);
+	} catch (error) {
+		next(ApiError.internal("Could not remove project from user"));
+		return;
+	}
+
+	res.status(200).json({ message: "Successfully left project" });
+};
+
+const changeMemberRole = async (req, res, next) => {
 	const userId = req.params.userId;
 	const newRole = req.body.role;
 
@@ -201,4 +237,5 @@ module.exports = {
 	getProjectInvitation: getProjectInvitation,
 	removeMember: removeMember,
 	changeMemberRole: changeMemberRole,
+	leaveProject: leaveProject,
 };
